@@ -1,4 +1,5 @@
 ﻿using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.Security;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,10 +28,9 @@ namespace Esri.ArcGISRuntime.Toolkit.Samples
             InitializeComponent();
 
             // Configure this app to use the Toolkit's Authentication Challenge Handler
-            Esri.ArcGISRuntime.Security.AuthenticationManager.Current.ChallengeHandler =
-                new Esri.ArcGISRuntime.Toolkit.Authentication.ChallengeHandler(this.Dispatcher);
-            LoadSamples();
+            App.InitializeAuthenticationHandlers(this.Dispatcher);
 
+            LoadSamples();
         }
 
         private void LoadSamples()
@@ -60,6 +60,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Samples
         }
 
         private MenuItem currentSampleMenuItem;
+
         private void sampleitem_Click(Sample sample, MenuItem menu)
         {
             var c = sample.Page.GetConstructor(new Type[] { });

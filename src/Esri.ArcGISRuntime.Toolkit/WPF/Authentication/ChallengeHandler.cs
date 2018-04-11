@@ -14,6 +14,8 @@
 //  *   limitations under the License.
 //  ******************************************************************************/
 
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using Esri.ArcGISRuntime.Security;
@@ -24,7 +26,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Authentication
     /// <summary>
     /// Custom <see cref="AuthenticationManager"/> Challenge Handler that combines user/password, certificate and OAuth authentication
     /// </summary>
-    public class ChallengeHandler : Esri.ArcGISRuntime.Security.IChallengeHandler
+    public class ChallengeHandler : IChallengeHandler, IOAuthAuthorizeHandler
     {
         private System.Windows.Threading.Dispatcher _dispatcher;
 
@@ -47,8 +49,31 @@ namespace Esri.ArcGISRuntime.Toolkit.Authentication
         /// </summary>
         public Style SignInFormStyle { get; set; }
 
+        Task<IDictionary<string, string>> IOAuthAuthorizeHandler.AuthorizeAsync(Uri serviceUri, Uri authorizeUri, Uri callbackUri)
+        {
+            TaskCompletionSource<IDictionary<string, string>> tcs = new TaskCompletionSource<IDictionary<string, string>>();
+            _dispatcher.InvokeAsync(() =>
+            {
+                var window = CreateOAuthWindow(authorizeUri, callbackUri);
+                window.Closed += (s, e) =>
+                {
+                    if (window.Tag is IDictionary<string, string> props)
+                    {
+                        tcs.TrySetResult(props);
+                    }
+                    else
+                    {
+                        tcs.TrySetCanceled();
+                    }
+                };
+                window.Topmost = true;
+                window.Show();
+            });
+            return tcs.Task;
+        }
+
         /// <inheritdoc cref="Esri.ArcGISRuntime.Security.IChallengeHandler.CreateCredentialAsync(CredentialRequestInfo)" />
-        public Task<Credential> CreateCredentialAsync(CredentialRequestInfo info)
+        Task<Credential> IChallengeHandler.CreateCredentialAsync(CredentialRequestInfo info)
         {
             TaskCompletionSource<Credential> tcs = new TaskCompletionSource<Credential>();
             _dispatcher.InvokeAsync(() =>
@@ -63,12 +88,43 @@ namespace Esri.ArcGISRuntime.Toolkit.Authentication
                     var login = CreateWindow(info);
                     login.Closed += (s, e) =>
                     {
-                        tcs.SetResult((login.Content as SignInForm).Credential);
+                        if (login.Tag is Credential c)
+                        {
+                            tcs.SetResult(c);
+                        }
+                        else
+                        {
+                            tcs.SetCanceled();
+                        }
                     };
                     login.ShowDialog();
                 }
             });
             return tcs.Task;
+        }
+
+        private System.Windows.Window CreateOAuthWindow(Uri authorizeUri, Uri callbackUri)
+        {
+            var dlg = new UI.Controls.OAuthDialog() { AuthorizeUri = authorizeUri, CallbackUri = callbackUri };
+            var window = new Window()
+            {
+                Content = dlg,
+                Height = 400,
+                Width = 330,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            };
+
+            // Set the app's window as the owner of the browser window (if main window closes, so will the browser)
+            if (Application.Current != null && Application.Current.MainWindow != null)
+            {
+                window.Owner = Application.Current.MainWindow;
+            }
+            dlg.SigninSucceeded += (s, e) =>
+            {
+                window.Tag = e;
+                window.Close();
+            };
+            return window;
         }
 
         private System.Windows.Window CreateWindow(CredentialRequestInfo info)
@@ -95,6 +151,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Authentication
 
             contentDialog.Completed += (s, e) =>
             {
+                window.Tag = contentDialog.Credential;
                 window.Close();
             };
 
