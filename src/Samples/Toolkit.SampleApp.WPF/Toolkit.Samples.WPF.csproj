@@ -78,6 +78,9 @@
     <Compile Include="Samples\MeasureToolbar\MeasureToolbarSample.xaml.cs">
       <DependentUpon>MeasureToolbarSample.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Samples\PopupView\PopupViewSample.xaml.cs">
+      <DependentUpon>PopupViewSample.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Samples\ScaleLine\ScaleLineSample.xaml.cs">
       <DependentUpon>ScaleLineSample.xaml</DependentUpon>
     </Compile>
@@ -130,6 +133,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Samples\PopupView\PopupViewSample.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Samples\ScaleLine\ScaleLineSample.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -180,6 +187,11 @@
       <Project>{332171e3-4d72-4148-9ddf-341cafb61ca3}</Project>
       <Name>Esri.ArcGISRuntime.Toolkit</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Images\edit.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

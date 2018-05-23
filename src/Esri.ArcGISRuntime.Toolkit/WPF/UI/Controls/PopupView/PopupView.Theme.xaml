@@ -1,0 +1,110 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Esri.ArcGISRuntime.Toolkit.UI.Controls">
+
+    <Style TargetType="{x:Type controls:PopupView}" >
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="HorizontalAlignment" Value="Left " />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:PopupView}">
+                    <Grid>
+                      <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                          <VisualState x:Name="ViewMode" >
+                          </VisualState>
+                          <VisualState x:Name="EditMode" >
+                            <Storyboard>
+                              <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="DisplayFields" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Collapsed}"/>
+                              </ObjectAnimationUsingKeyFrames>
+                              <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="EditButton" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Collapsed}"/>
+                              </ObjectAnimationUsingKeyFrames>
+                              <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="EditFields" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
+                              </ObjectAnimationUsingKeyFrames>
+                              <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="SaveButtons" Storyboard.TargetProperty="(UIElement.Visibility)">
+                                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
+                              </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                          </VisualState>
+                        </VisualStateGroup>
+                      </VisualStateManager.VisualStateGroups>
+                      
+                      <StackPanel>
+                        <ItemsControl x:Name="DisplayFields" DataContext="{TemplateBinding PopupManager}" ItemsSource="{Binding DisplayedFields, Mode=OneWay}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <StackPanel>
+                                <TextBlock Text="{Binding Field.Label}" FontWeight="Bold" />
+                                <TextBox IsEnabled="false" Text="{Binding FormattedValue, Mode=OneWay}" BorderThickness="0" />
+                              </StackPanel>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        
+                        <ItemsControl x:Name="EditFields" DataContext="{TemplateBinding PopupManager}" ItemsSource="{Binding EditableDisplayFields, Mode=OneWay}" Visibility="Collapsed">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <StackPanel x:Name="EditFieldItem">
+                                <TextBlock Text="{Binding Field.Label}" FontWeight="Bold" />
+                                <controls:FeatureDataField PopupFieldValue="{Binding}" FieldName="{Binding Field.FieldName}" Feature="{Binding PopupManager.Popup.GeoElement, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:PopupView}}}" />
+                                <!--<TextBox Text="{Binding Value, Mode=TwoWay}" BorderBrush="Red">
+                                  <TextBox.Style>
+                                    <Style TargetType="TextBox">
+                                      <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ValidationError}" Value="{x:Null}">
+                                          <Setter Property="BorderBrush" Value="Black" />
+                                        </DataTrigger>
+                                      </Style.Triggers>
+                                    </Style>
+                                  </TextBox.Style>
+                                </TextBox>-->
+                              </StackPanel>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <StackPanel x:Name="AttachmentArea" Visibility="Collapsed" >
+                          <ItemsControl DataContext="{TemplateBinding PopupManager}" ItemsSource="{Binding AttachmentManager.Attachments, Mode=OneWay}" x:Name="Attachments">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <Grid>
+                                  <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                  </Grid.ColumnDefinitions>
+                                  <Image />
+                                  <TextBlock Text="{Binding Name}" Grid.Column="1" />
+                                  <TextBlock Text="{Binding Type}" Grid.Column="2" />
+                                  <Button Content="X" Grid.Column="3" />
+                                </Grid>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                          <Button Content="Add..." x:Name="AttachmentButton" Visibility="Collapsed" />
+                        </StackPanel>
+
+                        <Button Content="Edit" x:Name="EditButton" />
+
+                        <Grid x:Name="SaveButtons" Visibility="Collapsed">
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                          </Grid.ColumnDefinitions>
+                          <Button Content="Cancel" x:Name="CancelEditsButton"/>
+                          <Button Content="Apply" x:Name="ApplyEditsButton" Grid.Column="1" />
+                        </Grid>
+                  
+                  </StackPanel>
+
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

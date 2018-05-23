@@ -127,6 +127,21 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         }
 
         /// <summary>
+        /// Gets or sets the optional PopupFieldValue from the PopupManager to help drive attribute editing via a Popup definition
+        /// </summary>
+        public Mapping.Popups.PopupFieldValue PopupFieldValue
+        {
+            get { return (Mapping.Popups.PopupFieldValue)GetValue(PopupFieldValueProperty); }
+            set { SetValue(PopupFieldValueProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="PopupFieldValue"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty PopupFieldValueProperty =
+            DependencyProperty.Register("PopupFieldValue", typeof(Mapping.Popups.PopupFieldValue), typeof(FeatureDataField), new PropertyMetadata(null, OnFieldNamePropertyChanged));
+
+        /// <summary>
         /// Gets or sets a value indicating whether generated control will be read-only.
         /// </summary>
         /// <remarks>
@@ -189,7 +204,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             }
 
             // Use the last saved attribute value on feature for old value.
-            var oldValue = featureDataField.Feature.Attributes[featureDataField.FieldName];
+            var oldValue = featureDataField.PopupFieldValue != null ? featureDataField.PopupFieldValue.Value : featureDataField.Feature.Attributes[featureDataField.FieldName];
 
             try
             {
@@ -419,7 +434,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             {
                 if (_contentControl != null)
                 {
-                    _contentControl.Content = new ReadOnlyDataItem($"[{FieldName}]", null);
+                    _contentControl.Content = new ReadOnlyDataItem($"[{FieldName}]", null, PopupFieldValue);
                     _contentControl.ContentTemplate = IsReadOnly ? ReadOnlyTemplate : InputTemplate;
                 }
 
@@ -441,7 +456,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             }
 
             // Retrieves binding value from feature attribute.
-            BindingValue = Feature.Attributes.ContainsKey(FieldName) ? Feature.Attributes[FieldName] : null;
+            BindingValue = PopupFieldValue != null ? PopupFieldValue.Value : (Feature.Attributes.ContainsKey(FieldName) ? Feature.Attributes[FieldName] : null);
 
             // Collapses control for unsupported field types and generates appropriate field
             // based on IsReadOnly, IsEditable, Domain.
@@ -457,7 +472,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
                     }
             }
 
-            if (IsReadOnly || !_field.IsEditable)
+            if (IsReadOnly || PopupFieldValue?.Field.IsEditable == false || !_field.IsEditable)
             {
                 GenerateReadOnlyField();
             }
@@ -512,7 +527,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         private void GenerateReadOnlyField()
         {
             _contentControl.ContentTemplate = ReadOnlyTemplate;
-            _dataItem = new ReadOnlyDataItem(BindingValue, _field);
+            _dataItem = new ReadOnlyDataItem(BindingValue, _field, PopupFieldValue);
             _contentControl.Content = _dataItem;
         }
 
@@ -732,7 +747,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             ClearValue(ValidationExceptionProperty);
 
             // Override value with last saved value on feature.
-            BindingValue = Feature.Attributes[FieldName];
+            BindingValue = PopupFieldValue != null ? PopupFieldValue.OriginalValue : Feature.Attributes[FieldName];
         }
 
         /// <summary>
@@ -744,6 +759,13 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         {
             try
             {
+                if (PopupFieldValue != null)
+                {
+                    PopupFieldValue.Value = value;
+                    SetValue(ValidationExceptionProperty, PopupFieldValue.ValidationError);
+                    return PopupFieldValue.ValidationError == null;
+                }
+
                 Feature.Attributes[FieldName] = ConvertToFieldType((value is KeyValuePair<object, string>) ? ((KeyValuePair<object, string>)value).Key : value);
                 ClearValue(ValidationExceptionProperty);
                 return true;

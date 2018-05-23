@@ -27,17 +27,19 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
     internal sealed class ReadOnlyDataItem : DataItem
     {
         private readonly Field _field;
+        private readonly Mapping.Popups.PopupFieldValue _pfv;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReadOnlyDataItem" /> class.
         /// </summary>
         /// <param name="value">default value.</param>
         /// <param name="field">contains schema for field value.</param>
-        internal ReadOnlyDataItem(object value, Field field)
+        internal ReadOnlyDataItem(object value, Field field, Mapping.Popups.PopupFieldValue pfv)
             : base(null, value)
         {
             _value = value;
             _field = field;
+            _pfv = pfv;
         }
 
         private object _value;
@@ -47,7 +49,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// </summary>
         public override object Value
         {
-            get { return _field?.GetDisplayValue(_value) ?? _value; }
+            get { return _pfv?.FormattedValue ?? _field?.GetDisplayValue(_value) ?? _value; }
             set { _value = value; }
         }
     }
