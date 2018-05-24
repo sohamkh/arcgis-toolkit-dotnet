@@ -19,9 +19,6 @@
                               <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="DisplayFields" Storyboard.TargetProperty="(UIElement.Visibility)">
                                 <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Collapsed}"/>
                               </ObjectAnimationUsingKeyFrames>
-                              <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="EditButton" Storyboard.TargetProperty="(UIElement.Visibility)">
-                                <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Collapsed}"/>
-                              </ObjectAnimationUsingKeyFrames>
                               <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="EditFields" Storyboard.TargetProperty="(UIElement.Visibility)">
                                 <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
                               </ObjectAnimationUsingKeyFrames>
@@ -89,7 +86,7 @@
                           <Button Content="Add..." x:Name="AttachmentButton" Visibility="Collapsed" />
                         </StackPanel>
 
-                        <Button Content="Edit" x:Name="EditButton" />
+                        <Button Content="Edit" x:Name="EditButton" Visibility="Collapsed" />
 
                         <Grid x:Name="SaveButtons" Visibility="Collapsed">
                           <Grid.ColumnDefinitions>

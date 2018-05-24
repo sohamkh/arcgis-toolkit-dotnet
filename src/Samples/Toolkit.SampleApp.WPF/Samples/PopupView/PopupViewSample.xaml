@@ -28,7 +28,9 @@
             <Button Content="Load" Click="LoadMapButton_Click" Grid.Column="1" MinWidth="100" />
         </Grid>
 
-        <esri:PopupView Margin="10" Grid.Row="1" x:Name="popupView" />
+        <ScrollViewer Margin="10" Grid.Row="1" >
+            <esri:PopupView x:Name="popupView" />
+        </ScrollViewer>
 
     </Grid>
 </UserControl>

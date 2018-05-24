@@ -25,15 +25,13 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
     /// <summary>
     /// A control that creates a visualizer for a <see cref="Popup"/>.
     /// </summary>
-    //[TemplatePart(Name = "List", Type = typeof(ItemsControl))]
     public class PopupView : Control
     {
-        //private PopupManager pm;
-        private UIElement attachmentArea;
-        private System.Windows.Controls.Primitives.ButtonBase editButton;
-        private System.Windows.Controls.Primitives.ButtonBase attachmentButton;
-        private System.Windows.Controls.Primitives.ButtonBase applyEditsButton;
-        private System.Windows.Controls.Primitives.ButtonBase cancelEditsButton;
+        private UIElement _attachmentArea;
+        private System.Windows.Controls.Primitives.ButtonBase _editButton;
+        private System.Windows.Controls.Primitives.ButtonBase _attachmentButton;
+        private System.Windows.Controls.Primitives.ButtonBase _applyEditsButton;
+        private System.Windows.Controls.Primitives.ButtonBase _cancelEditsButton;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PopupView"/> class.
@@ -47,25 +45,25 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            attachmentArea = GetTemplateChild("AttachmentArea") as UIElement;
-            editButton = GetTemplateChild("EditButton") as System.Windows.Controls.Primitives.ButtonBase;
-            attachmentButton = GetTemplateChild("AttachmentButton") as System.Windows.Controls.Primitives.ButtonBase;
-            applyEditsButton = GetTemplateChild("ApplyEditsButton") as System.Windows.Controls.Primitives.ButtonBase;
-            cancelEditsButton = GetTemplateChild("CancelEditsButton") as System.Windows.Controls.Primitives.ButtonBase;
+            _attachmentArea = GetTemplateChild("AttachmentArea") as UIElement;
+            _editButton = GetTemplateChild("EditButton") as System.Windows.Controls.Primitives.ButtonBase;
+            _attachmentButton = GetTemplateChild("AttachmentButton") as System.Windows.Controls.Primitives.ButtonBase;
+            _applyEditsButton = GetTemplateChild("ApplyEditsButton") as System.Windows.Controls.Primitives.ButtonBase;
+            _cancelEditsButton = GetTemplateChild("CancelEditsButton") as System.Windows.Controls.Primitives.ButtonBase;
 
-            if (editButton != null)
+            if (_editButton != null)
             {
-                editButton.Click += EditButton_Click;
+                _editButton.Click += EditButton_Click;
             }
 
-            if (applyEditsButton != null)
+            if (_applyEditsButton != null)
             {
-                applyEditsButton.Click += ApplyEditsButton_Click;
+                _applyEditsButton.Click += ApplyEditsButton_Click;
             }
 
-            if (cancelEditsButton != null)
+            if (_cancelEditsButton != null)
             {
-                cancelEditsButton.Click += CancelEditsButton_Click;
+                _cancelEditsButton.Click += CancelEditsButton_Click;
             }
 
             InitPopup();
@@ -113,29 +111,31 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
         private void InitPopup()
         {
+            if (_editButton != null)
+            {
+                _editButton.Visibility = Visibility.Collapsed;
+            }
+
             if (PopupManager == null)
             {
-                //pm = null;
                 VisualStateManager.GoToState(this, "ViewMode" , true);
                 return;
             }
 
-            //pm = new PopupManager(Popup) { SketchEditor = Editor };
-
-            if (attachmentArea != null)
+            if (_attachmentArea != null)
             {
-                attachmentArea.Visibility = PopupManager.ShowAttachments ? Visibility.Visible : Visibility.Collapsed;
+                _attachmentArea.Visibility = PopupManager.ShowAttachments ? Visibility.Visible : Visibility.Collapsed;
                 if (PopupManager.ShowAttachments)
                 {
                     var _ = PopupManager.AttachmentManager.FetchAttachmentsAsync();
                 }
             }
 
-            if (PopupManager.AllowEdit && !IsReadOnly)
+            if (_editButton != null)
             {
-                if (editButton != null && !IsEditModeEnabled)
+                if (PopupManager.AllowEdit && !IsReadOnly && !IsEditModeEnabled)
                 {
-                    editButton.Visibility = Visibility.Visible;
+                    _editButton.Visibility = Visibility.Visible;
                 }
             }
 
@@ -148,28 +148,25 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             {
                 VisualStateManager.GoToState(this, "EditMode", true);
                 PopupManager.StartEditing();
+                if (_editButton != null)
+                {
+                    _editButton.Visibility = Visibility.Collapsed;
+                }
             }
             else
             {
                 VisualStateManager.GoToState(this, "ViewMode", true);
+                if (_editButton != null && PopupManager?.AllowEdit == true && !IsReadOnly && !IsEditModeEnabled)
+                {
+                    _editButton.Visibility = Visibility.Collapsed;
+                }
             }
 
-            if (attachmentButton != null)
+            if (_attachmentButton != null)
             {
-                attachmentButton.Visibility = PopupManager.ShowAttachments && PopupManager.AllowEditAttachments ? Visibility.Visible : Visibility.Collapsed;
+                _attachmentButton.Visibility = PopupManager.ShowAttachments && PopupManager.AllowEditAttachments ? Visibility.Visible : Visibility.Collapsed;
             }
         }
-
-        //public ArcGISRuntime.UI.SketchEditor Editor
-        //{
-        //    get { return (ArcGISRuntime.UI.SketchEditor)GetValue(EditorProperty); }
-        //    set { SetValue(EditorProperty, value); }
-        //}
-
-        //public static readonly DependencyProperty EditorProperty =
-        //    DependencyProperty.Register("Editor", typeof(ArcGISRuntime.UI.SketchEditor), typeof(PopupView), new PropertyMetadata(null));
-
-
 
         public PopupManager PopupManager
         {
@@ -185,20 +182,6 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         {
             ((PopupView)d).InitPopup();
         }
-
-        //public Popup Popup
-        //{
-        //    get { return (Popup)GetValue(PopupProperty); }
-        //    set { SetValue(PopupProperty, value); }
-        //}
-
-        //public static readonly DependencyProperty PopupProperty =
-        //    DependencyProperty.Register("Popup", typeof(Popup), typeof(PopupView), new PropertyMetadata(null, OnPopupPropertyChanged));
-
-        //private static void OnPopupPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        //{
-        //    ((PopupView)d).InitPopup();
-        //}
 
         public bool IsReadOnly
         {
