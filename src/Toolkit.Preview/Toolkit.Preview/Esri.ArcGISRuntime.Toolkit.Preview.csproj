@@ -1,6 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/2.0.54">
 
   <PropertyGroup>
+  <UWPTargetFramework>uap10.0.17134</UWPTargetFramework>
     <TargetFrameworks>$(iOSTargetFramework);$(UWPTargetFramework);$(AndroidTargetFramework);$(DotNetTargetFramework);$(NetCoreTargetFramework)</TargetFrameworks>
     <Title>ArcGIS Runtime SDK for .NET - Toolkit (Preview)</Title>
     <Description>Preview package containing new features under development in the Toolkit for ArcGIS Runtime SDK for .NET.</Description>
@@ -12,7 +13,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(UWPTargetFramework)'">
-    <TargetPlatformVersion>$(UWPTargetPlatformVersion)</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.17763.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>$(UWPTargetPlatformMinVersion)</TargetPlatformMinVersion>
     <GenerateLibraryLayout>true</GenerateLibraryLayout>
   </PropertyGroup>
@@ -88,8 +89,8 @@
   <!-- Workaround issue with nuget re-packaging contents from UWP Toolkit library in this package as well -->
   <Target Name="FixGetPackagingOutputs" AfterTargets="GetPackagingOutputs">
     <ItemGroup>
-      <PackagingOutputs Remove="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\Toolkit\Toolkit'))\**\*.*" />
-      <PackagingOutputs Remove="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\Toolkit\Toolkit.UWP'))\**\*.*" />
+      <PackagingOutputs Remove="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\Toolkit.Preview\Toolkit.Preview'))\**\*.*" />
+      <PackagingOutputs Remove="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\Toolkit.Preview\Toolkit.Preview.UWP'))\**\*.*" />
     </ItemGroup>
   </Target>
 

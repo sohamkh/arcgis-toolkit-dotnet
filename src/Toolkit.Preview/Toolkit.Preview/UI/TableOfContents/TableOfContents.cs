@@ -14,7 +14,7 @@
 //  *   limitations under the License.
 //  ******************************************************************************/
 
-#if !__IOS__ && !__ANDROID__ && !NETSTANDARD2_0 && !NETFX_CORE
+#if !__IOS__ && !__ANDROID__ && !NETSTANDARD2_0
 
 using System.Windows;
 #if NETFX_CORE
@@ -31,7 +31,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Preview.UI.Controls
     /// <summary>
     /// A control that creates a table of content tree view from a <see cref="GeoView"/>.
     /// </summary>
-    [TemplatePart(Name = "TreeView", Type = typeof(ItemsControl))]
+    [TemplatePart(Name = "TreeView", Type = typeof(TreeView))]
     public class TableOfContents : Control
     {
         private readonly TocDataSource _datasource;
@@ -44,6 +44,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Preview.UI.Controls
         {
             DefaultStyleKey = typeof(TableOfContents);
             _datasource = new TocDataSource(this);
+            ItemTemplateSelector = new TocItemTemplateSelector(this);
         }
 
         /// <inheritdoc />
@@ -54,18 +55,24 @@ namespace Esri.ArcGISRuntime.Toolkit.Preview.UI.Controls
 #endif
         {
             base.OnApplyTemplate();
-            ItemTemplateSelector = new TocItemTemplateSelector(this);
             UpdateDatasource();
         }
 
         private void UpdateDatasource()
         {
-            var tree = GetTemplateChild("TreeView") as ItemsControl;
+            var tree = GetTemplateChild("TreeView") as TreeView;
             if (tree != null)
             {
-                tree.ItemsSource = _datasource;
 #if !NETFX_CORE
+                tree.ItemsSource = _datasource;
                 ContextMenuService.AddContextMenuOpeningHandler(tree, ContextMenuEventHandler);
+#else
+                // //We require 1809 (v10.0.17763.0) for the treeview control
+                if (Windows.Foundation.Metadata.ApiInformation.IsPropertyPresent("Windows.UI.Xaml.Controls.TreeView", "ItemsSource"))
+                {
+                    tree.ItemsSource = _datasource;
+                    tree.ItemTemplateSelector = ItemTemplateSelector;
+                }
 #endif
             }
         }

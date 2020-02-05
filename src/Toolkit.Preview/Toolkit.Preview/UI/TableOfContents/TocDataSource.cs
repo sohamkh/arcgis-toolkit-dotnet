@@ -14,7 +14,7 @@
 //  *   limitations under the License.
 //  ******************************************************************************/
 
-#if !__IOS__ && !__ANDROID__ && !NETSTANDARD2_0 && !NETFX_CORE
+#if !__IOS__ && !__ANDROID__ && !NETSTANDARD2_0
 
 using System;
 using System.Collections;

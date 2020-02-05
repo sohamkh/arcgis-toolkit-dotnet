@@ -1,6 +1,8 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:isTreeViewPresent="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsPropertyPresent(Windows.UI.Xaml.Controls.TreeView, ItemsSource)">
     <ResourceDictionary.MergedDictionaries>
-        <!--<ResourceDictionary Source="ms-appx:///Esri.ArcGISRuntime.Toolkit.Preview/UI/Controls/LayerLegend/LayerLegend.Theme.xaml" />-->
+      <!--<ResourceDictionary isTreeViewPresent:Source="ms-appx:///Esri.ArcGISRuntime.Toolkit.Preview/UI/Controls/TableOfContents/TableOfContents.Theme.xaml" />-->
+      <ResourceDictionary Source="ms-appx:///Esri.ArcGISRuntime.Toolkit.Preview/UI/Controls/TableOfContents/TableOfContents.Theme.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
 </ResourceDictionary>
