@@ -1,34 +1,24 @@
-﻿using Esri.ArcGISRuntime.Geometry;
+﻿using System;
+using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.Mapping;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
+using Windows.UI.Popups;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace ARToolkit.SampleApp.Samples
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class CityOfBrestSample : Page
+    [SampleInfo(DisplayName = "Look around", Description = "A sample that doesn't rely on motion but only features the ability to look around based on a motion sensor")]
+    public sealed partial class LookAroundSample : Page
     {
-        public CityOfBrestSample()
+        public LookAroundSample()
         {
             this.InitializeComponent();
+            Init();
+        }
 
+        private async void Init()
+        { 
             arview.RenderVideoFeed = false;
+            arview.NorthAlign = false;
             Surface sceneSurface = new Surface();
             sceneSurface.ElevationSources.Add(new ArcGISTiledElevationSource(new Uri("https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer")));
             Scene scene = new Scene(Basemap.CreateImagery())
@@ -42,7 +32,18 @@ namespace ARToolkit.SampleApp.Samples
             MapPoint start = new MapPoint(-4.494677, 48.384472, 24.772694, SpatialReferences.Wgs84);
             arview.OriginCamera = new Camera(start, 200, 0, 90, 0);
             arview.Scene = scene;
-            arview.StartTrackingAsync();
+
+            try
+            {
+                await arview.StartTrackingAsync();
+            }
+            catch (Exception ex)
+            {
+                await new MessageDialog("Failed to start tracking: \n" + ex.Message).ShowAsync();
+                if (Frame.CanGoBack)
+                    Frame.GoBack();
+                return;
+            }
         }
     }
 }

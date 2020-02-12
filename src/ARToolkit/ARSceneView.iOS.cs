@@ -188,18 +188,29 @@ namespace Esri.ArcGISRuntime.ARToolkit
 
         private bool _isStarted;
 
-        private void OnStartTracking()
+        private System.Threading.Tasks.Task OnStartTracking()
         {
+            var tcs = new System.Threading.Tasks.TaskCompletionSource<object?>();
             CoreFoundation.DispatchQueue.MainQueue.DispatchAsync(() =>
             {
-                _isStarted = true;
-                if (IsUsingARKit)
+                try
                 {
-                    // Once we have our configuration we need to run session with it.
-                    // ResetTracking will just reset tracking by session to start it again from scratch:
-                    ARSCNView?.Session.Run(ARConfiguration, ARSessionRunOptions.ResetTracking);
+                    _isStarted = true;
+                    if (IsUsingARKit)
+                    {
+                        // Once we have our configuration we need to run session with it.
+                        // ResetTracking will just reset tracking by session to start it again from scratch:
+                        ARSCNView?.Session.Run(ARConfiguration, ARSessionRunOptions.ResetTracking);
+                    }
                 }
+                catch (Exception ex)
+                {
+                    tcs.SetException(ex);
+                    return;
+                }
+                tcs.SetResult(null);
             });
+            return tcs.Task;
         }
 
         /// <inheritdoc />

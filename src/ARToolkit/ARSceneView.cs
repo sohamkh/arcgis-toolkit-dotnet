@@ -82,7 +82,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
             }
             CameraController = _controller;
             var currentTrackingValue = IsTracking;
-            OnStartTracking();
+            await OnStartTracking();
             IsTracking = true;
             if (!currentTrackingValue)
                 IsTrackingStateChanged?.Invoke(this, true);

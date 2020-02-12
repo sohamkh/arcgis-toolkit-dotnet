@@ -17,6 +17,7 @@
 #if NETFX_CORE
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Esri.ArcGISRuntime.Mapping;
 using Esri.ArcGISRuntime.UI.Controls;
 using Windows.Devices.Sensors;
@@ -28,10 +29,9 @@ namespace Esri.ArcGISRuntime.ARToolkit
 {
     public partial class ARSceneView : SceneView
     {
-        private CaptureElement _cameraView;
-        private OrientationSensor _sensor;
-        private MediaCapture _mediaCapture;
-        private bool _isLoaded;
+        private CaptureElement? _cameraView;
+        private OrientationSensor? _sensor;
+        private MediaCapture? _mediaCapture;
         private bool _isTracking;
 
 		  /// <summary>
@@ -61,24 +61,24 @@ namespace Esri.ArcGISRuntime.ARToolkit
                 };
                 parent.Children.Insert(parent.Children.IndexOf(elm), _cameraView);
             }
+
             if(IsTracking)
             {
                 StartCapturing();
             }
         }
 
-        private void OnStartTracking()
+        private TaskCompletionSource<object?> _loadTask = new TaskCompletionSource<object?>();
+
+        private async Task OnStartTracking()
         {
             if (_isTracking)
             {
                 return;
             }
 
-            if (_isLoaded)
-            {
-                InitializeTracker();
-            }
-
+            await _loadTask.Task;
+            InitializeTracker();
             _isTracking = true;
         }
 
@@ -99,16 +99,12 @@ namespace Esri.ArcGISRuntime.ARToolkit
 
         private void ARSceneView_Loaded(object sender, RoutedEventArgs e)
         {
-            _isLoaded = true;
-            if (_isTracking)
-            {
-                InitializeTracker();
-            }
+            _loadTask.TrySetResult(null);
         }
 
         private void InitializeTracker()
         {
-            if(NorthAlign)
+            if (NorthAlign)
             {
                 _sensor = OrientationSensor.GetDefault(SensorReadingType.Absolute, SensorOptimizationGoal.Precision);
             }
@@ -130,7 +126,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
 
         private void ARSceneView_Unloaded(object sender, RoutedEventArgs e)
         {
-            _isLoaded = false;
+            _loadTask = new TaskCompletionSource<object?>();
             if (_isTracking)
             {
                 DisposeTracking();
@@ -156,7 +152,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
         private void Sensor_ReadingChanged(OrientationSensor sender, OrientationSensorReadingChangedEventArgs args)
         {
             var c = Camera;
-            if (c == null)
+            if (c == null || _controller == null)
             {
                 return;
             }
@@ -168,7 +164,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
 
         private async void StartCapturing()
         {
-            if (_cameraView == null || !RenderVideoFeed || !_isLoaded)
+            if (_cameraView == null || !RenderVideoFeed || !_loadTask.Task.IsCompleted)
             {
                 return;
             }

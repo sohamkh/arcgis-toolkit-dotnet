@@ -289,7 +289,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
             _initialHeading = null;
         }
 
-        private void OnStartTracking()
+        private Task OnStartTracking()
         {
             _initialHeading = null;
             _orientationListener?.Enable();
@@ -298,6 +298,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
             {
                 StartArCoreSession();
             }
+            return Task.CompletedTask;
         }
 
         private void OnResetTracking()
