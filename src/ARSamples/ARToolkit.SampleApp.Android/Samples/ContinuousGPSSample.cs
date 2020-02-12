@@ -48,7 +48,6 @@ namespace ARToolkit.SampleApp.Samples
 
             //Configure ARView for 1:1 AR
             ARView.TranslationFactor = 1; // 1:1 AR Scale
-            //ARView.UseCompass = true; // Attempt to align with north
             ARView.ViewpointChanged += ARView_ViewpointChanged; // Used for reporting the current heading on the UI
             ARView.LocationDataSource = new SystemLocationDataSource();
             TrackingMode = ARLocationTrackingMode.Continuous;
