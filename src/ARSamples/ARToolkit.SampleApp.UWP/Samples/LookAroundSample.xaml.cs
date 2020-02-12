@@ -16,26 +16,22 @@ namespace ARToolkit.SampleApp.Samples
         }
 
         private async void Init()
-        { 
+        {
             arview.RenderVideoFeed = false;
             arview.NorthAlign = false;
+            arview.OriginCamera = new Esri.ArcGISRuntime.Mapping.Camera(new MapPoint(-119.622075, 37.720650, 2105), 0, 90, 0); //Yosemite
+
             Surface sceneSurface = new Surface();
             sceneSurface.ElevationSources.Add(new ArcGISTiledElevationSource(new Uri("https://elevation3d.arcgis.com/arcgis/rest/services/WorldElevation3D/Terrain3D/ImageServer")));
             Scene scene = new Scene(Basemap.CreateImagery())
             {
                 BaseSurface = sceneSurface
             };
-
-            // Create and add a building layer.
-            ArcGISSceneLayer buildingsLayer = new ArcGISSceneLayer(new Uri("https://tiles.arcgis.com/tiles/P3ePLMYs2RVChkJx/arcgis/rest/services/Buildings_Brest/SceneServer/layers/0"));
-            scene.OperationalLayers.Add(buildingsLayer);
-            MapPoint start = new MapPoint(-4.494677, 48.384472, 24.772694, SpatialReferences.Wgs84);
-            arview.OriginCamera = new Camera(start, 200, 0, 90, 0);
             arview.Scene = scene;
 
             try
             {
-                await arview.StartTrackingAsync();
+                await arview.StartTrackingAsync(Esri.ArcGISRuntime.ARToolkit.ARLocationTrackingMode.Ignore);
             }
             catch (Exception ex)
             {

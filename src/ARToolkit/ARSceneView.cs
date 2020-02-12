@@ -228,7 +228,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
                     {
                         _cameraView.Visibility = Windows.UI.Xaml.Visibility.Visible;
                     }
-                    StartCapturing();
+                    _ = StartCapturing();
 #endif
                 }
                 else
@@ -297,6 +297,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
         /// </summary>
         /// <param name="screenPoint"> The point in screen coordinates.</param>
         /// <returns>The map point corresponding to screenPoint.</returns>
+        /// <exception cref="PlatformNotSupportedException" />
         public Geometry.MapPoint? ARScreenToLocation(Point screenPoint)
         {
             var matrix = HitTest(screenPoint);
@@ -332,6 +333,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
         /// <param name="screenLocation">The screen point to determine the <see cref="InitialTransformation"/> from.</param>
         /// <returns>if an AR point cannot be determined, this method will return <c>false</c>.</returns>
         /// <seealso cref="SetInitialTransformation(Mapping.TransformationMatrix)"/>
+        /// <exception cref="PlatformNotSupportedException" />
         public bool SetInitialTransformation(Point screenLocation)
         {
             var origin = HitTest(screenLocation);

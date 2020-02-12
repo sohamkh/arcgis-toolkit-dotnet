@@ -33,8 +33,10 @@ namespace Esri.ArcGISRuntime.ARToolkit
         private OrientationSensor? _sensor;
         private MediaCapture? _mediaCapture;
         private bool _isTracking;
+        private TransformationMatrix _sensorToScreenTransformation = TransformationMatrix.Create(-Math.PI / 2, 0, 0, 1, 0, 0, 0); // TODO: This value likely needs updating on screen orientation changes
 
-		  /// <summary>
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ARSceneView"/> class.
         /// </summary>
         public ARSceneView() : base()
@@ -61,29 +63,36 @@ namespace Esri.ArcGISRuntime.ARToolkit
                 };
                 parent.Children.Insert(parent.Children.IndexOf(elm), _cameraView);
             }
-
-            if(IsTracking)
-            {
-                StartCapturing();
-            }
         }
 
         private TaskCompletionSource<object?> _loadTask = new TaskCompletionSource<object?>();
+        private bool _isTrackingStarting;
 
         private async Task OnStartTracking()
         {
-            if (_isTracking)
+            if (_isTracking || _isTrackingStarting)
             {
                 return;
             }
-
-            await _loadTask.Task;
-            InitializeTracker();
-            _isTracking = true;
+            _isTrackingStarting = true;
+            try
+            {
+                await _loadTask.Task;
+                if (_isTrackingStarting)
+                {
+                    await InitializeTracker();
+                    _isTracking = true;
+                }
+            }
+            finally
+            {
+                _isTrackingStarting = false;
+            }
         }
 
         private void OnStopTracking()
         {
+            _isTrackingStarting = false;
             if (!_isTracking)
             {
                 return;
@@ -102,7 +111,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
             _loadTask.TrySetResult(null);
         }
 
-        private void InitializeTracker()
+        private async Task InitializeTracker()
         {
             if (NorthAlign)
             {
@@ -121,7 +130,7 @@ namespace Esri.ArcGISRuntime.ARToolkit
                 throw new NotSupportedException("No Orientation Sensor detected");
             }
             _sensor.ReadingChanged += Sensor_ReadingChanged;
-            StartCapturing();
+            await StartCapturing();
         }
 
         private void ARSceneView_Unloaded(object sender, RoutedEventArgs e)
@@ -159,10 +168,11 @@ namespace Esri.ArcGISRuntime.ARToolkit
 
             var l = c.Transformation;
             var q = args.Reading.Quaternion;
-            _controller.TransformationMatrix = InitialTransformation + TransformationMatrix.Create(q.X, q.Y, q.Z, q.W, 0, 0, 0);
+
+            _controller.TransformationMatrix = InitialTransformation + TransformationMatrix.Create(q.X, q.Z, -q.Y, q.W, 0, 0, 0) + _sensorToScreenTransformation;
         }
 
-        private async void StartCapturing()
+        private async Task StartCapturing()
         {
             if (_cameraView == null || !RenderVideoFeed || !_loadTask.Task.IsCompleted)
             {
@@ -173,6 +183,11 @@ namespace Esri.ArcGISRuntime.ARToolkit
             var desiredDevice = allVideoDevices.FirstOrDefault(x => x.EnclosureLocation != null
                 && x.EnclosureLocation.Panel == Windows.Devices.Enumeration.Panel.Back);
             var cameraDevice = desiredDevice ?? allVideoDevices.FirstOrDefault();
+            if(cameraDevice == null)
+            {
+                throw new NotSupportedException("No suitable camera found");
+            }
+
             var settings = new MediaCaptureInitializationSettings { VideoDeviceId = cameraDevice.Id };
 
             _mediaCapture = new MediaCapture();
@@ -183,7 +198,14 @@ namespace Esri.ArcGISRuntime.ARToolkit
             catch (UnauthorizedAccessException)
             {
                 // Access denied to media capture (requires webcam + microphone access
-                return;
+                throw;
+            }
+
+            // Set Field-of-view of SceneView to match camera focal length
+            var hfl = _mediaCapture.MediaCaptureSettings?.Horizontal35mmEquivalentFocalLength;
+            if (hfl.HasValue)
+            {
+                SetFieldOfView(Math.Atan2(17.5, hfl.Value) * 2 / Math.PI * 180);
             }
 
             _cameraView.Source = _mediaCapture;
