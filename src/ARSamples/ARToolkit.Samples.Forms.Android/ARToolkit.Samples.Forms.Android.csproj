@@ -110,10 +110,10 @@
       <Name>ARToolkit.Samples.Forms</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup Condition="'$(UseNugetReferences)'!='true'">
-    <ProjectReference Include="..\..\ARToolkit\Esri.ArcGISRuntime.ARToolkit.csproj" />
-    <ProjectReference Include="..\..\ARToolkit.Forms\Esri.ArcGISRuntime.ARToolkit.Forms.csproj" />
-  </ItemGroup>
+  <!-- <ItemGroup Condition="'$(UseNugetReferences)'!='true'"> -->
+    <!-- <ProjectReference Include="..\..\ARToolkit\Esri.ArcGISRuntime.ARToolkit.csproj" /> -->
+    <!-- <ProjectReference Include="..\..\ARToolkit.Forms\Esri.ArcGISRuntime.ARToolkit.Forms.csproj" /> -->
+  <!-- </ItemGroup> -->
   <ItemGroup Condition="'$(UseNugetReferences)'=='true'">
     <PackageReference Include="Esri.ArcGISRuntime.ARToolkit" Version="$(ArcGISRuntimePackageVersion)"/>
     <PackageReference Include="Esri.ArcGISRuntime.ARToolkit.Forms" Version="$(ArcGISRuntimePackageVersion)"/>
