@@ -61,12 +61,12 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
                 return;
             }
 
-            if (LayerContent is ILoadable loadable)
+            if (LayerContent is ILoadable)
             {
-                if (loadable.LoadStatus != LoadStatus.Loaded)
+                if ((LayerContent as ILoadable).LoadStatus != LoadStatus.Loaded)
                 {
-                    loadable.Loaded += Layer_Loaded;
-                    loadable.LoadAsync();
+                    (LayerContent as ILoadable).Loaded += Layer_Loaded;
+                    (LayerContent as ILoadable).LoadAsync();
                     return;
                 }
             }
@@ -79,9 +79,9 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// <summary>
         /// Gets or sets the layer to display the legend for.
         /// </summary>
-        private ILayerContent? LayerContentImpl
+        private ILayerContent LayerContentImpl
         {
-            get { return GetValue(LayerProperty) as ILayerContent; }
+            get { return (ILayerContent)GetValue(LayerProperty); }
             set { SetValue(LayerProperty, value); }
         }
 
@@ -106,9 +106,9 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         public static readonly DependencyProperty IncludeSublayersProperty =
             DependencyProperty.Register(nameof(IncludeSublayers), typeof(bool), typeof(LayerLegend), new PropertyMetadata(true, (d, e) => (d as LayerLegend)?.Refresh()));
 
-        private void Layer_Loaded(object? sender, EventArgs e)
+        private void Layer_Loaded(object sender, EventArgs e)
         {
-            ((ILoadable)sender!).Loaded -= Layer_Loaded;
+            (sender as ILoadable).Loaded -= Layer_Loaded;
 #if NETFX_CORE
             var ignore_ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, Refresh);
 #else
@@ -119,9 +119,9 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// <summary>
         /// Gets or sets the ItemsTemplate.
         /// </summary>
-        public DataTemplate? ItemTemplate
+        public DataTemplate ItemTemplate
         {
-            get { return GetValue(ItemTemplateProperty) as DataTemplate; }
+            get { return (DataTemplate)GetValue(ItemTemplateProperty); }
             set { SetValue(ItemTemplateProperty, value); }
         }
 
@@ -134,9 +134,9 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// <summary>
         /// Gets or sets the Items Panel Template.
         /// </summary>
-        public ItemsPanelTemplate? ItemsPanel
+        public ItemsPanelTemplate ItemsPanel
         {
-            get { return GetValue(ItemsPanelProperty) as ItemsPanelTemplate; }
+            get { return (ItemsPanelTemplate)GetValue(ItemsPanelProperty); }
             set { SetValue(ItemsPanelProperty, value); }
         }
 

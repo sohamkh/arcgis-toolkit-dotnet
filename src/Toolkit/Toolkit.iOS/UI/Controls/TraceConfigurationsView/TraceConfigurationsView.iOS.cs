@@ -17,13 +17,14 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.UtilityNetworks;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
-    [DisplayName("BookmarksView")]
+    [DisplayName("TraceConfigurationsView")]
     [Category("ArcGIS Runtime Controls")]
-    public partial class BookmarksView
+    public partial class TraceConfigurationsView
     {
         private UITableView _listView;
         private UIBarButtonItem _closeButton;
@@ -45,11 +46,11 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
                 TranslatesAutoresizingMaskIntoConstraints = false,
                 RowHeight = UITableView.AutomaticDimension,
             };
-            _listView.RegisterClassForCellReuse(typeof(UITableViewCell), BookmarksTableSource.CellId);
+            _listView.RegisterClassForCellReuse(typeof(UITableViewCell), TraceConfigurationsTableSource.CellId);
 
             // Set up the list view source
-            var tableSource = new BookmarksTableSource(_dataSource);
-            tableSource.BookmarkSelected += HandleBookmarkSelected;
+            var tableSource = new TraceConfigurationsTableSource(_dataSource);
+            tableSource.TraceConfigurationselected += HandleTraceConfigurationselected;
             _listView.Source = tableSource;
 
             var listener = new Internal.WeakEventListener<INotifyCollectionChanged, object, NotifyCollectionChangedEventArgs>(tableSource)
@@ -76,13 +77,13 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             // Set a title if not already set
             if (NavigationItem != null && string.IsNullOrEmpty(Title))
             {
-                Title = "Bookmarks";
+                Title = "TraceConfigurations";
             }
 
             // Do initial data reload
             _listView.ReloadData();
         }
 
-        private void HandleBookmarkSelected(object sender, Bookmark bookmark) => SelectAndNavigateToBookmark(bookmark);
+        private void HandleTraceConfigurationselected(object sender, UtilityNamedTraceConfiguration TraceConfiguration) => SelectAndNavigateToTraceConfiguration(TraceConfiguration);
     }
 }

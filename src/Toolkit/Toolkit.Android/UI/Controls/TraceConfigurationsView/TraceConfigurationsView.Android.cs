@@ -19,30 +19,31 @@ using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Util;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.UtilityNetworks;
 
 namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
-    public partial class BookmarksView
+    public partial class TraceConfigurationsView
     {
         private RecyclerView _internalListView;
-        private BookmarksAdapter _adapter;
+        private TraceConfigurationsAdapter _adapter;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BookmarksView"/> class.
+        /// Initializes a new instance of the <see cref="TraceConfigurationsView"/> class.
         /// </summary>
         /// <param name="context">The Context the view is running in, through which it can access resources, themes, etc.</param>
-        public BookmarksView(Context context)
+        public TraceConfigurationsView(Context context)
             : base(context)
         {
             Initialize();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BookmarksView"/> class.
+        /// Initializes a new instance of the <see cref="TraceConfigurationsView"/> class.
         /// </summary>
         /// <param name="context">The Context the view is running in, through which it can access resources, themes, etc.</param>
         /// <param name="attr">The attributes of the AXML element declaring the view.</param>
-        public BookmarksView(Context context, IAttributeSet attr)
+        public TraceConfigurationsView(Context context, IAttributeSet attr)
             : base(context, attr)
         {
             Initialize();
@@ -52,7 +53,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         {
             _internalListView = new RecyclerView(Context);
             _internalListView.SetLayoutManager(new LinearLayoutManager(Context));
-            _adapter = new BookmarksAdapter(Context, _dataSource);
+            _adapter = new TraceConfigurationsAdapter(Context, _dataSource);
             _internalListView.SetAdapter(_adapter);
             AddView(_internalListView);
         }
@@ -66,7 +67,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
             if (_adapter != null)
             {
-                _adapter.BookmarkSelected += ListView_ItemClick;
+                _adapter.TraceConfigurationselected += ListView_ItemClick;
             }
         }
 
@@ -79,13 +80,13 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
             if (_adapter != null)
             {
-                _adapter.BookmarkSelected -= ListView_ItemClick;
+                _adapter.TraceConfigurationselected -= ListView_ItemClick;
             }
         }
 
-        private void ListView_ItemClick(object sender, Bookmark bookmark)
+        private void ListView_ItemClick(object sender, UtilityNamedTraceConfiguration TraceConfiguration)
         {
-            SelectAndNavigateToBookmark(bookmark);
+            SelectAndNavigateToTraceConfiguration(TraceConfiguration);
         }
     }
 }

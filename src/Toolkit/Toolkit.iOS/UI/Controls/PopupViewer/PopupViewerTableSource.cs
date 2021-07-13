@@ -44,7 +44,10 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             _foregroundColor = foregroundColor;
         }
 
-        public override nint RowsInSection(UITableView tableview, nint section) => _displayFields.Count;
+        public override nint RowsInSection(UITableView tableview, nint section)
+        {
+            return _displayFields?.Count ?? 0;
+        }
 
         public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
         {
@@ -54,17 +57,18 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             var info = _displayFields[indexPath.Row];
-            var viewcell = tableView.DequeueReusableCell(CellId);
-            viewcell.LayoutMargins = UIEdgeInsets.Zero;
-            if (viewcell is DetailsItemCell cell)
+            var cell = tableView.DequeueReusableCell(CellId) as DetailsItemCell;
+            if (cell == null)
             {
-                cell.SetForegroundColor(_foregroundColor);
-                cell.Update(info);
+                return null;
             }
 
-            viewcell.SetNeedsUpdateConstraints();
-            viewcell.UpdateConstraints();
-            return viewcell;
+            cell.LayoutMargins = UIEdgeInsets.Zero;
+            cell.SetForegroundColor(_foregroundColor);
+            cell.Update(info);
+            cell.SetNeedsUpdateConstraints();
+            cell.UpdateConstraints();
+            return cell;
         }
     }
 }

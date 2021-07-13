@@ -15,7 +15,6 @@
 //  ******************************************************************************/
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using Esri.ArcGISRuntime.Mapping;
 using UIKit;
 
@@ -23,24 +22,11 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
     internal class LayerLegendItemCell : UITableViewCell
     {
-        private SymbolDisplay _symbolDisplay;
-        private UILabel _textLabel;
-
-        public LayerLegendItemCell(UITableViewCellStyle style, string reuseIdentifier)
-            : base(style, reuseIdentifier)
-        {
-            Initialize();
-        }
+        private readonly SymbolDisplay _symbolDisplay;
+        private readonly UILabel _textLabel;
 
         public LayerLegendItemCell(IntPtr handle)
             : base(handle)
-        {
-            Initialize();
-        }
-
-        [MemberNotNull(nameof(_symbolDisplay))]
-        [MemberNotNull(nameof(_textLabel))]
-        private void Initialize()
         {
             ClipsToBounds = true;
             MultipleTouchEnabled = true;

@@ -17,7 +17,6 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using CoreGraphics;
 using Esri.ArcGISRuntime.Mapping;
 using UIKit;
@@ -54,7 +53,6 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             base.AwakeFromNib();
         }
 
-        [MemberNotNull(nameof(_listView))]
         private void Initialize()
         {
             BackgroundColor = UIColor.Clear;
@@ -100,14 +98,14 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         }
 
         /// <inheritdoc />
-        ISite? IComponent.Site { get; set; }
+        ISite IComponent.Site { get; set; }
 
-        private EventHandler? _disposed;
+        private EventHandler _disposed;
 
         /// <summary>
         /// Internal use only
         /// </summary>
-        event EventHandler? IComponent.Disposed
+        event EventHandler IComponent.Disposed
         {
             add { _disposed += value; }
             remove { _disposed -= value; }
@@ -115,6 +113,11 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
         private void Refresh()
         {
+            if (_listView == null)
+            {
+                return;
+            }
+
             if (LayerContent == null)
             {
                 _listView.Source = null;
@@ -123,12 +126,12 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
                 return;
             }
 
-            if (LayerContent is ILoadable loadable)
+            if (LayerContent is ILoadable)
             {
-                if (loadable.LoadStatus != LoadStatus.Loaded)
+                if ((LayerContent as ILoadable).LoadStatus != LoadStatus.Loaded)
                 {
-                    loadable.Loaded += Layer_loaded;
-                    loadable.LoadAsync();
+                    (LayerContent as ILoadable).Loaded += Layer_loaded;
+                    (LayerContent as ILoadable).LoadAsync();
                     return;
                 }
             }
@@ -153,11 +156,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
         private void Layer_loaded(object sender, EventArgs e)
         {
-            if (sender is ILoadable loadable)
-            {
-                loadable.Loaded -= Layer_loaded;
-            }
-
+            (sender as ILoadable).Loaded -= Layer_loaded;
             InvokeOnMainThread(() => Refresh());
         }
     }

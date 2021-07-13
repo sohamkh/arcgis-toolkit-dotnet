@@ -23,14 +23,14 @@ using Esri.ArcGISRuntime.Mapping;
 namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
     /// <summary>
-    /// View class used to render the individual entry for a <see cref="Bookmark" /> shown by <see cref="BookmarksAdapter" />.
+    /// View class used to render the individual entry for a <see cref="TraceConfiguration" /> shown by <see cref="TraceConfigurationsAdapter" />.
     /// </summary>
-    internal class BookmarkItemView : LinearLayout
+    internal class TraceConfigurationItemView : LinearLayout
     {
-        // View that renders the bookmark's title.
-        public TextView BookmarkLabel { get; set; }
+        // View that renders the TraceConfiguration's title.
+        public TextView TraceConfigurationLabel { get; set; }
 
-        internal BookmarkItemView(Context context)
+        internal TraceConfigurationItemView(Context context)
             : base(context)
         {
             Orientation = Orientation.Horizontal;
@@ -39,7 +39,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
             Clickable = true;
 
-            BookmarkLabel = new TextView(context)
+            TraceConfigurationLabel = new TextView(context)
             {
                 LayoutParameters = new LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.MatchParent),
             };
@@ -57,14 +57,14 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             context.Theme.ResolveAttribute(Android.Resource.Attribute.ListPreferredItemPaddingEnd, listItemRightMarginValue, true);
             SetPadding((int)listItemLeftMarginValue.GetDimension(Resources.DisplayMetrics), 0, (int)listItemRightMarginValue.GetDimension(Resources.DisplayMetrics), 0);
 
-            BookmarkLabel.Gravity = GravityFlags.CenterVertical | GravityFlags.FillHorizontal;
+            TraceConfigurationLabel.Gravity = GravityFlags.CenterVertical | GravityFlags.FillHorizontal;
 
             // Selection animation on hover
             var selectableBackground = new TypedValue();
             context.Theme.ResolveAttribute(Android.Resource.Attribute.SelectableItemBackground, selectableBackground, true);
             SetBackgroundResource(selectableBackground.ResourceId);
 
-            AddView(BookmarkLabel);
+            AddView(TraceConfigurationLabel);
         }
     }
 }

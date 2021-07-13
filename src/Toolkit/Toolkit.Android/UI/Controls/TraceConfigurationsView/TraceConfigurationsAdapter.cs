@@ -22,19 +22,20 @@ using Android.Content;
 using Android.Support.V7.Widget;
 using Android.Views;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.UtilityNetworks;
 
 namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
     /// <summary>
-    /// Creates the UI for the list items in the associated list of bookmarks.
+    /// Creates the UI for the list items in the associated list of TraceConfigurations.
     /// </summary>
-    internal class BookmarksAdapter : RecyclerView.Adapter
+    internal class TraceConfigurationsAdapter : RecyclerView.Adapter
     {
-        private BookmarksViewDataSource _dataSource;
+        private TraceConfigurationsViewDataSource _dataSource;
         private readonly Context _context;
-        private List<Bookmark> _shadowList = new List<Bookmark>();
+        private List<UtilityNamedTraceConfiguration> _shadowList = new List<UtilityNamedTraceConfiguration>();
 
-        internal BookmarksAdapter(Context context, BookmarksViewDataSource dataSource)
+        internal TraceConfigurationsAdapter(Context context, TraceConfigurationsViewDataSource dataSource)
         {
             _context = context;
             _dataSource = dataSource;
@@ -47,7 +48,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
                     switch (eventArgs.Action)
                     {
                         case NotifyCollectionChangedAction.Add:
-                            _shadowList.InsertRange(eventArgs.NewStartingIndex, eventArgs.NewItems.OfType<Bookmark>());
+                            _shadowList.InsertRange(eventArgs.NewStartingIndex, eventArgs.NewItems.OfType<UtilityNamedTraceConfiguration>());
                             NotifyItemInserted(eventArgs.NewStartingIndex);
                             break;
                         case NotifyCollectionChangedAction.Remove:
@@ -63,7 +64,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
                             NotifyDataSetChanged();
                             break;
                         case NotifyCollectionChangedAction.Replace:
-                            _shadowList[eventArgs.OldStartingIndex] = (Bookmark)eventArgs.NewItems[0];
+                            _shadowList[eventArgs.OldStartingIndex] = (UtilityNamedTraceConfiguration)eventArgs.NewItems[0];
                             NotifyItemChanged(eventArgs.OldStartingIndex);
                             break;
                     }
@@ -79,26 +80,26 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// <inheritdoc />
         public override long GetItemId(int position) => position;
 
-        public event EventHandler<Bookmark> BookmarkSelected;
+        public event EventHandler<UtilityNamedTraceConfiguration> TraceConfigurationselected;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
-            BookmarkItemViewHolder bookmarkHolder = holder as BookmarkItemViewHolder;
+            TraceConfigurationItemViewHolder configurationHolder = holder as TraceConfigurationItemViewHolder;
             if (_shadowList != null && _shadowList.Count() > position)
             {
-                bookmarkHolder.BookmarkLabel.Text = _shadowList.ElementAt(position).Name;
+                configurationHolder.TraceConfigurationLabel.Text = _shadowList.ElementAt(position).Name;
             }
         }
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            View itemView = new BookmarkItemView(_context);
-            return new BookmarkItemViewHolder(itemView, OnBookmarkClicked);
+            View itemView = new TraceConfigurationItemView(_context);
+            return new TraceConfigurationItemViewHolder(itemView, OnTraceConfigurationClicked);
         }
 
-        private void OnBookmarkClicked(int position)
+        private void OnTraceConfigurationClicked(int position)
         {
-            BookmarkSelected?.Invoke(this, _shadowList.ElementAt(position));
+            TraceConfigurationselected?.Invoke(this, _shadowList.ElementAt(position));
         }
     }
 }

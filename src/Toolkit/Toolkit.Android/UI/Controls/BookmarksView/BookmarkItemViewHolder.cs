@@ -26,20 +26,23 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
     /// </summary>
     internal class BookmarkItemViewHolder : RecyclerView.ViewHolder
     {
-        public TextView BookmarkLabel { get; }
+        public TextView BookmarkLabel { get; private set; }
 
-        public BookmarkItemViewHolder(BookmarkItemView bmView, Action<int> listener)
-            : base(bmView)
+        public BookmarkItemViewHolder(View itemView, Action<int> listener)
+            : base(itemView)
         {
-            BookmarkLabel = bmView.BookmarkLabel;
+            if (itemView is BookmarkItemView bmView)
+            {
+                BookmarkLabel = bmView.BookmarkLabel;
+            }
 
-            var weakEventHandler = new Internal.WeakEventListener<View, object, EventArgs>(bmView)
+            var weakEventHandler = new Internal.WeakEventListener<View, object, EventArgs>(itemView)
             {
                 OnEventAction = (instance, source, eventArgs) => listener(LayoutPosition),
                 OnDetachAction = (instance, weakEventListener) => instance.Click -= weakEventListener.OnEvent,
             };
 
-            bmView.Click += weakEventHandler.OnEvent;
+            itemView.Click += weakEventHandler.OnEvent;
         }
     }
 }

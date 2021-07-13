@@ -19,26 +19,27 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using Esri.ArcGISRuntime.Mapping;
+using Esri.ArcGISRuntime.UtilityNetworks;
 using Foundation;
 using UIKit;
 
 namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
     /// <summary>
-    /// Data source for showing a bookmark list in a <see cref="UITableView" /> with <see cref="BookmarkSelected" /> event.
+    /// Data source for showing a TraceConfiguration list in a <see cref="UITableView" /> with <see cref="TraceConfigurationselected" /> event.
     /// </summary>
-    internal class BookmarksTableSource : UITableViewSource, INotifyCollectionChanged
+    internal class TraceConfigurationsTableSource : UITableViewSource, INotifyCollectionChanged
     {
-        private readonly BookmarksViewDataSource _bookmarks;
+        private readonly TraceConfigurationsViewDataSource _TraceConfigurations;
 
         internal static readonly NSString CellId = new NSString(nameof(UITableViewCell));
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public BookmarksTableSource(BookmarksViewDataSource dataSource)
+        public TraceConfigurationsTableSource(TraceConfigurationsViewDataSource dataSource)
         {
-            _bookmarks = dataSource;
-            if (_bookmarks is INotifyCollectionChanged incc)
+            _TraceConfigurations = dataSource;
+            if (_TraceConfigurations is INotifyCollectionChanged incc)
             {
                 var listener = new Internal.WeakEventListener<INotifyCollectionChanged, object, NotifyCollectionChangedEventArgs>(incc);
                 listener.OnEventAction = (instance, source, eventArgs) => CollectionChanged?.Invoke(this, eventArgs);
@@ -49,28 +50,28 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
-            return _bookmarks?.Count() ?? 0;
+            return _TraceConfigurations?.Count() ?? 0;
         }
 
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
-            var bookmark = _bookmarks.ElementAt(indexPath.Row);
+            var TraceConfiguration = _TraceConfigurations.ElementAt(indexPath.Row);
             var cell = tableView.DequeueReusableCell(CellId, indexPath);
             if (cell == null)
             {
                 cell = new UITableViewCell(UITableViewCellStyle.Default, CellId);
             }
 
-            cell.TextLabel.Text = bookmark.Name;
+            cell.TextLabel.Text = TraceConfiguration.Name;
             return cell;
         }
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
             tableView.DeselectRow(indexPath, false);
-            BookmarkSelected?.Invoke(this, _bookmarks.ElementAt(indexPath.Row));
+            TraceConfigurationselected?.Invoke(this, _TraceConfigurations.ElementAt(indexPath.Row));
         }
 
-        public event EventHandler<Bookmark> BookmarkSelected;
+        public event EventHandler<UtilityNamedTraceConfiguration> TraceConfigurationselected;
     }
 }

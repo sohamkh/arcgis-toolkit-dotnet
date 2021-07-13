@@ -14,33 +14,35 @@
 //  *   limitations under the License.
 //  ******************************************************************************/
 
-#if XAMARIN
+using System;
+using Android.Support.V7.Widget;
+using Android.Views;
+using Android.Widget;
 
 namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
     /// <summary>
-    /// A control that renders a <see cref="Symbology.Symbol"/>.
+    /// Used to enable ViewHolder pattern used by RecyclerView.
     /// </summary>
-    public partial class SymbolDisplay
+    internal class TraceConfigurationItemViewHolder : RecyclerView.ViewHolder
     {
-        private Symbology.Symbol _symbol;
+        public TextView TraceConfigurationLabel { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the symbol to render.
-        /// </summary>
-        private Symbology.Symbol SymbolImpl
+        public TraceConfigurationItemViewHolder(View itemView, Action<int> listener)
+            : base(itemView)
         {
-            get => _symbol;
-            set
+            if (itemView is TraceConfigurationItemView bmView)
             {
-                if (_symbol != value)
-                {
-                    var oldValue = _symbol;
-                    _symbol = value;
-                    OnSymbolChanged(oldValue, _symbol);
-                }
+                TraceConfigurationLabel = bmView.TraceConfigurationLabel;
             }
+
+            var weakEventHandler = new Internal.WeakEventListener<View, object, EventArgs>(itemView)
+            {
+                OnEventAction = (instance, source, eventArgs) => listener(LayoutPosition),
+                OnDetachAction = (instance, weakEventListener) => instance.Click -= weakEventListener.OnEvent,
+            };
+
+            itemView.Click += weakEventHandler.OnEvent;
         }
     }
 }
-#endif

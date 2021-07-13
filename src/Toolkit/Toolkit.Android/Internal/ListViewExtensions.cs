@@ -33,7 +33,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Internal
             for (int i = 0; i < totalItems; i++)
             {
                 var item = listView.Adapter.GetView(i, null, listView);
-                if (item is null || item.Visibility == ViewStates.Gone)
+                if (item.Visibility == ViewStates.Gone)
                 {
                     continue;
                 }
@@ -42,11 +42,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Internal
                 totalHeight += item.MeasuredHeight;
             }
 
-            if (listView.LayoutParameters != null)
-            {
-                listView.LayoutParameters.Height = totalHeight + ((listView.DividerHeight * totalItems) - 1);
-            }
-
+            listView.LayoutParameters.Height = totalHeight + ((listView.DividerHeight * totalItems) - 1);
             listView.RequestLayout();
         }
     }

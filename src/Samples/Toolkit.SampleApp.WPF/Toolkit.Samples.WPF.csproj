@@ -60,20 +60,183 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\**\*.xaml.cs">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-      <DependentUpon>%(Filename)</DependentUpon>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\App.xaml.cs">
+      <Link>App.xaml.cs</Link>
+      <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="..\Toolkit.SampleApp.WPF_Net5\**\*.xaml" Exclude="..\Toolkit.SampleApp.WPF_Net5\App.xaml">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\MainWindow.xaml.cs">
+      <Link>MainWindow.xaml.cs</Link>
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\BookmarksView\BookmarksViewSample.xaml.cs">
+      <Link>Samples\BookmarksView\BookmarksViewSample.xaml.cs</Link>
+      <DependentUpon>BookmarksViewSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Compass\MapViewCompassSample.xaml.cs">
+      <Link>Samples\Compass\MapViewCompassSample.xaml.cs</Link>
+      <DependentUpon>MapViewCompassSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Compass\SceneViewCompassSample.xaml.cs">
+      <Link>Samples\Compass\SceneViewCompassSample.xaml.cs</Link>
+      <DependentUpon>SceneViewCompassSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\FeatureDataField\DatagridSample.xaml.cs">
+      <Link>Samples\FeatureDataField\DatagridSample.xaml.cs</Link>
+      <DependentUpon>DatagridSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\FeatureDataField\EditFeatureSample.xaml.cs">
+      <Link>Samples\FeatureDataField\EditFeatureSample.xaml.cs</Link>
+      <DependentUpon>EditFeatureSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Legend\LayerLegendSample.xaml.cs">
+      <Link>Samples\Legend\LayerLegendSample.xaml.cs</Link>
+      <DependentUpon>LayerLegendSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Legend\LegendSample.xaml.cs">
+      <Link>Samples\Legend\LegendSample.xaml.cs</Link>
+      <DependentUpon>LegendSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\MeasureToolbar\MeasureToolbarSample.xaml.cs">
+      <Link>Samples\MeasureToolbar\MeasureToolbarSample.xaml.cs</Link>
+      <DependentUpon>MeasureToolbarSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <!--
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\PopupViewer\PopupViewerSample.xaml.cs">
+      <Link>Samples\PopupViewer\PopupViewerSample.xaml.cs</Link>
+      <DependentUpon>PopupViewerSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+	-->
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\ScaleLine\ScaleLineSample.xaml.cs">
+      <Link>Samples\ScaleLine\ScaleLineSample.xaml.cs</Link>
+      <DependentUpon>ScaleLineSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\SymbolDisplay\SymbolDisplaySample.xaml.cs">
+      <Link>Samples\SymbolDisplay\SymbolDisplaySample.xaml.cs</Link>
+      <DependentUpon>SymbolDisplaySample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\SymbolDisplay\SymbolEditorSample.xaml.cs">
+      <Link>Samples\SymbolDisplay\SymbolEditorSample.xaml.cs</Link>
+      <DependentUpon>SymbolEditorSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\TimeSlider\TimeSliderSample.xaml.cs">
+      <Link>Samples\TimeSlider\TimeSliderSample.xaml.cs</Link>
+      <DependentUpon>TimeSliderSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="..\Toolkit.SampleApp.WPF_Net5\Samples\TraceConfigurationsView\TraceConfigurationsViewSample.xaml.cs">
+      <Link>Samples\TraceConfigurationsView\TraceConfigurationsViewSample.xaml.cs</Link>
+      <DependentUpon>TraceConfigurationsViewSample.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\MainWindow.xaml">
+      <Link>MainWindow.xaml</Link>
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Content Include="..\Toolkit.SampleApp.WPF_Net5\**\*.png">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\BookmarksView\BookmarksViewSample.xaml">
+      <Link>Samples\BookmarksView\BookmarksViewSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Compass\MapViewCompassSample.xaml">
+      <Link>Samples\Compass\MapViewCompassSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Compass\SceneViewCompassSample.xaml">
+      <Link>Samples\Compass\SceneViewCompassSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\FeatureDataField\DatagridSample.xaml">
+      <Link>Samples\FeatureDataField\DatagridSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\FeatureDataField\EditFeatureSample.xaml">
+      <Link>Samples\FeatureDataField\EditFeatureSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Legend\LayerLegendSample.xaml">
+      <Link>Samples\Legend\LayerLegendSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\Legend\LegendSample.xaml">
+      <Link>Samples\Legend\LegendSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\MeasureToolbar\MeasureToolbarSample.xaml">
+      <Link>Samples\MeasureToolbar\MeasureToolbarSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <!--
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\PopupViewer\PopupViewerSample.xaml">
+      <Link>Samples\PopupViewer\PopupViewerSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+	-->
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\ScaleLine\ScaleLineSample.xaml">
+      <Link>Samples\ScaleLine\ScaleLineSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\SymbolDisplay\SymbolDisplaySample.xaml">
+      <Link>Samples\SymbolDisplay\SymbolDisplaySample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\SymbolDisplay\SymbolEditorSample.xaml">
+      <Link>Samples\SymbolDisplay\SymbolEditorSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\TimeSlider\TimeSliderSample.xaml">
+      <Link>Samples\TimeSlider\TimeSliderSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="..\Toolkit.SampleApp.WPF_Net5\Samples\TraceConfigurationsView\TraceConfigurationsViewSample.xaml">
+      <Link>Samples\TraceConfigurationsView\TraceConfigurationsViewSample.xaml</Link>
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <!--
+    <Content Include="..\Toolkit.SampleApp.WPF_Net5\bin\Release\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png">
+      <Link>bin\Release\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="..\Toolkit.SampleApp.WPF_Net5\bin\Release\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png">
+      <Link>bin\Release\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Toolkit.SampleApp.WPF_Net5\bin\Release\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png">
+      <Link>bin\Release\net5.0-windows10.0.18362.0\bin\Debug\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Toolkit.SampleApp.WPF_Net5\bin\Release\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png">
+      <Link>bin\Release\net5.0-windows10.0.18362.0\Samples\PopupViewer\info.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+	-->
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Toolkit.SampleApp.WPF_Net5\**\*.cs" Exclude="..\Toolkit.SampleApp.WPF_Net5\**\*.xaml.cs;..\Toolkit.SampleApp.WPF_Net5\obj\**\*.cs">

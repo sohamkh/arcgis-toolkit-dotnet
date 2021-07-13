@@ -14,7 +14,6 @@
 //  *   limitations under the License.
 //  ******************************************************************************/
 
-using System.Diagnostics.CodeAnalysis;
 using Android.Content;
 using Android.Graphics;
 using Android.Runtime;
@@ -28,7 +27,6 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
     [Register("Esri.ArcGISRuntime.Toolkit.UI.Controls.PopupViewer")]
     public partial class PopupViewer
     {
-        // These properties are not null, as they are initialized in Initialize() called by all constructors
         private LinearLayout _rootLayout;
         private TextView _editSummary;
         private TextView _customHtmlDescription;
@@ -38,7 +36,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// Initializes a new instance of the <see cref="PopupViewer"/> class.
         /// </summary>
         /// <param name="context">The Context the view is running in, through which it can access resources, themes, etc.</param>
-        public PopupViewer(Context? context)
+        public PopupViewer(Context context)
             : base(context)
         {
             Initialize();
@@ -49,13 +47,12 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// </summary>
         /// <param name="context">The Context the view is running in, through which it can access resources, themes, etc.</param>
         /// <param name="attr">The attributes of the AXML element declaring the view.</param>
-        public PopupViewer(Context? context, IAttributeSet? attr)
+        public PopupViewer(Context context, IAttributeSet attr)
             : base(context, attr)
         {
             Initialize();
         }
 
-        [MemberNotNull(nameof(_detailsList), nameof(_customHtmlDescription), nameof(_editSummary), nameof(_rootLayout), nameof(_detailsList))]
         internal void Initialize()
         {
             _rootLayout = new LinearLayout(Context)
@@ -98,6 +95,11 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
         private void Refresh()
         {
+            if (_detailsList == null)
+            {
+                return;
+            }
+
             if (PopupManager == null)
             {
                 _detailsList.Adapter = null;
@@ -110,7 +112,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             if (!string.IsNullOrWhiteSpace(PopupManager.CustomDescriptionHtml))
             {
                 _customHtmlDescription.Visibility = ViewStates.Visible;
-                _customHtmlDescription.Text = PopupManager.CustomDescriptionHtml?.ToPlainText();
+                _customHtmlDescription.Text = PopupManager.CustomDescriptionHtml.ToPlainText();
                 _detailsList.Visibility = ViewStates.Gone;
                 _detailsList.Adapter = null;
                 return;
@@ -136,6 +138,12 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             set
             {
                 _foregroundColor = value;
+
+                if (_customHtmlDescription == null)
+                {
+                    return;
+                }
+
                 _editSummary.SetTextColor(value);
                 _customHtmlDescription.SetTextColor(value);
                 (_detailsList.Adapter as PopupFieldAdapter)?.SetForegroundColor(value);

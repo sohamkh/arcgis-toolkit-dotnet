@@ -16,7 +16,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using CoreGraphics;
 using Esri.ArcGISRuntime.UI;
@@ -56,8 +55,6 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             base.AwakeFromNib();
         }
 
-        [MemberNotNull(nameof(_rootStackView))]
-        [MemberNotNull(nameof(_imageView))]
         private void Initialize()
         {
             BackgroundColor = UIColor.Clear;
@@ -124,14 +121,14 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         }
 
         /// <inheritdoc />
-        ISite? IComponent.Site { get; set; }
+        ISite IComponent.Site { get; set; }
 
-        private EventHandler? _disposed;
+        private EventHandler _disposed;
 
         /// <summary>
         /// Internal use only
         /// </summary>
-        event EventHandler? IComponent.Disposed
+        event EventHandler IComponent.Disposed
         {
             add { _disposed += value; }
             remove { _disposed -= value; }
@@ -139,6 +136,11 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
         private async Task UpdateSwatchAsync()
         {
+            if (_imageView == null)
+            {
+                return;
+            }
+
             if (Symbol == null)
             {
                 _imageView.Image = null;
