@@ -15,29 +15,37 @@
 //  ******************************************************************************/
 
 using Esri.ArcGISRuntime.UtilityNetworks;
+using Symbol = Esri.ArcGISRuntime.Symbology.Symbol;
 #if !XAMARIN
 using System;
-using System.Collections.Generic;
-using Esri.ArcGISRuntime.Mapping;
-using Esri.ArcGISRuntime.UI;
+using System.Linq;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Threading.Tasks;
+using System.Windows.Input;
+using Esri.ArcGISRuntime.Geometry;
 using Esri.ArcGISRuntime.UI.Controls;
 #if NETFX_CORE
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Popups;
 #else
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 #endif
 
 namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
-    [TemplatePart(Name = "List", Type = typeof(ListView))]
+    [TemplatePart(Name = "UtilityNetworkPicker", Type = typeof(ComboBox))]
+    [TemplatePart(Name = "TraceConfigurationPicker", Type = typeof(ComboBox))]
+    [TemplatePart(Name = "AddingLocationToggle", Type = typeof(ToggleButton))]
+    [TemplatePart(Name = "ResetButton", Type = typeof(Button))]
+    [TemplatePart(Name = "TraceButton", Type = typeof(Button))]
+    [TemplatePart(Name = "BusyIndicator", Type = typeof(ProgressBar))]
+    [TemplatePart(Name = "StatusLabel", Type = typeof(TextBlock))]
+    [TemplatePart(Name = "FunctionResultList", Type = typeof(ItemsControl))]
+    [TemplatePart(Name = "StartingLocationsList", Type = typeof(ListView))]
     public partial class TraceConfigurationsView
     {
         /// <summary>
@@ -45,8 +53,17 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         /// </summary>
         public TraceConfigurationsView()
         {
+            _synchronizationContext = System.Threading.SynchronizationContext.Current ?? new System.Threading.SynchronizationContext();
             DefaultStyleKey = typeof(TraceConfigurationsView);
         }
+
+        private ComboBox _utilityNetworkPicker;
+        private ComboBox _traceConfigurationPicker;
+        private ProgressBar _busyIndicator;
+        private TextBlock _statusLabel;
+        private ItemsControl _functionResultList;
+        private ListView _startingLocationsList;
+        private ObservableCollection<StartingLocationsListModel> _startingLocationsListItemsSource = new ObservableCollection<StartingLocationsListModel>();
 
         /// <summary>
         /// <inheritdoc />
@@ -59,173 +76,141 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         {
             base.OnApplyTemplate();
 
-            CboNamedTraceConfigurations = GetTemplateChild("cboNamedTraceConfigurations") as ComboBox;
-            CboUtilityNetworks = GetTemplateChild("cboUtilityNetworks") as ComboBox;
-            TxtUtilityNetworks = GetTemplateChild("txtUtilityNetworks") as TextBlock;
-            _txtStatus = GetTemplateChild("txtStatus") as TextBlock;
-            _pbMapLoad = GetTemplateChild("pbMapLoad") as ProgressBar;
-#if NETFX_CORE
-            _traceConfigurationsViewContent = GetTemplateChild("traceConfigurationsViewContent") as Windows.UI.Xaml.Controls.Grid;
-#else
-            _traceConfigurationsViewContent = GetTemplateChild("traceConfigurationsViewContent") as System.Windows.Controls.Grid;
-#endif
-            // TerminalPicker = GetTemplateChild("TerminalPicker") as UIElement;
-
-            if (CboNamedTraceConfigurations != null)
+            if (GetTemplateChild("UtilityNetworkPicker") is ComboBox utilityNetworkPicker)
             {
-                CboNamedTraceConfigurations.ItemsSource = _dataSource;
-            }
-
-            if (CboUtilityNetworks != null)
-            {
-                CboUtilityNetworks.ItemsSource = _utilityNetworksDataSource;
-            }
-
-            var btnTrace = GetTemplateChild("btnTrace") as Button;
-            btnTrace.Click += OnTraceClick;
-            var btnReset = GetTemplateChild("btnReset") as Button;
-            btnReset.Click += OnResetClick;
-            var btnAddStartingPoints = GetTemplateChild("btnAddStartingPoints") as ToggleButton;
-            btnAddStartingPoints.Click += OnToggleGeoViewTapped;
-        }
-
-        private ComboBox _cboNamedTraceConfigurations;
-        private ComboBox _cboUtilityNetworks;
-        private TextBlock TxtUtilityNetworks;
-        private TextBlock _txtStatus;
-        private ProgressBar _pbMapLoad;
-#if NETFX_CORE
-        private Windows.UI.Xaml.Controls.Grid _traceConfigurationsViewContent;
-#else
-        private System.Windows.Controls.Grid _traceConfigurationsViewContent;
-#endif
-
-        private ComboBox CboNamedTraceConfigurations
-        {
-            get => _cboNamedTraceConfigurations;
-            set
-            {
-                if (value != _cboNamedTraceConfigurations)
+                _utilityNetworkPicker = utilityNetworkPicker;
+                _utilityNetworkPicker.ItemsSource = _utilityNetworks;
+                _utilityNetworks.CollectionChanged += (s, e) =>
                 {
-                    if (_cboNamedTraceConfigurations != null)
+                    if (_utilityNetworkPicker != null)
                     {
-                        _cboNamedTraceConfigurations.SelectionChanged -= TraceConfigurationSelectionChanged;
+                        _utilityNetworkPicker.Visibility = _utilityNetworks.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+                    }
+                };
+                _utilityNetworkPicker.SelectionChanged += (s, e) => SelectedUtilityNetwork = (s as ComboBox)?.SelectedItem as UtilityNetwork;
+            }
+
+            if (GetTemplateChild("TraceConfigurationPicker") is ComboBox traceConfigurationPicker)
+            {
+                _traceConfigurationPicker = traceConfigurationPicker;
+                _traceConfigurationPicker.ItemsSource = _traceConfigurations;
+                _traceConfigurations.CollectionChanged += (s, e) =>
+                {
+                    if (_traceConfigurationPicker != null)
+                    {
+                        _traceConfigurationPicker.Visibility = _traceConfigurations.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
+                    }
+                };
+                _traceConfigurationPicker.SelectionChanged += (s, e) => SelectedTraceConfiguration = (s as ComboBox)?.SelectedItem as UtilityNamedTraceConfiguration;
+            }
+
+            if (GetTemplateChild("AddingLocationToggle") is ToggleButton addingLocationToggle)
+            {
+                addingLocationToggle.Click += (s, e) => IsAddingTraceLocation = s is ToggleButton tb && tb.IsChecked.HasValue && tb.IsChecked.Value;
+            }
+
+            if (GetTemplateChild("ResetButton") is Button resetButton)
+            {
+                resetButton.Click += (s, e) => Reset();
+            }
+
+            if (GetTemplateChild("TraceButton") is Button traceButton)
+            {
+                traceButton.Click += (s, e) => _ = TraceAsync();
+            }
+
+            if (GetTemplateChild("BusyIndicator") is ProgressBar busyIndicator)
+            {
+                _busyIndicator = busyIndicator;
+            }
+
+            if (GetTemplateChild("StatusLabel") is TextBlock statusLabel)
+            {
+                _statusLabel = statusLabel;
+            }
+
+            if (GetTemplateChild("FunctionResultList") is ItemsControl functionResultList)
+            {
+                _functionResultList = functionResultList;
+                _functionResultList.ItemsSource = _traceFunctionResults;
+                _traceFunctionResults.CollectionChanged += (s, e) =>
+                {
+                    if (_functionResultList != null)
+                    {
+                        _functionResultList.Visibility = _traceFunctionResults.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                    }
+                };
+            }
+
+            if (GetTemplateChild("StartingLocationsList") is ListView startingLocationsList)
+            {
+                _startingLocationsList = startingLocationsList;
+                _startingLocationsList.ItemsSource = _startingLocationsListItemsSource;
+                _startingLocations.CollectionChanged += UpdateStartingLocationItemSourceOnCollectionChanged;
+                _startingLocationsList.SelectionChanged += StartingLocationsList_SelectionChanged;
+            }
+
+            _propertyChangedAction = new Action<string>((propertyName) =>
+            {
+                if (propertyName == nameof(IsBusy))
+                {
+                    if (_busyIndicator != null)
+                    {
+                        _busyIndicator.Visibility = IsBusy ? Visibility.Visible : Visibility.Collapsed;
+                        _busyIndicator.IsIndeterminate = IsBusy;
                     }
 
-                    _cboNamedTraceConfigurations = value;
-                    if (_cboNamedTraceConfigurations != null)
+                    IsEnabled = !IsBusy;
+                }
+                else if (propertyName == nameof(Status))
+                {
+                    if (_statusLabel != null)
                     {
-                        _cboNamedTraceConfigurations.SelectionChanged += TraceConfigurationSelectionChanged;
+                        _statusLabel.Text = Status;
                     }
                 }
+            });
+
+            Status = GetStatusBasedOnSelection();
+        }
+
+        private void StartingLocationsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is StartingLocationsListModel listItem)
+            {
+                ShowStartingPoint(listItem.TerminalPickerModel.Element);
             }
         }
 
-        private ComboBox CboUtilityNetworks
+        private void UpdateStartingLocationItemSourceOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            get => _cboUtilityNetworks;
-            set
+            if (_startingLocationsList != null)
             {
-                if (value != _cboUtilityNetworks)
+                _startingLocationsList.Visibility = _startingLocations.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                if (_startingLocationsListItemsSource.Count > _startingLocations.Count)
                 {
-                    if (_cboUtilityNetworks != null)
+                    var list = _startingLocationsListItemsSource.Where(t => _startingLocations.All(element => element != t.TerminalPickerModel.Element)).ToList();
+                    foreach (StartingLocationsListModel l in list)
                     {
-                        _cboUtilityNetworks.SelectionChanged -= UtilityNetworkSelectionChanged;
-                    }
-
-                    _cboUtilityNetworks = value;
-                    if (_cboUtilityNetworks != null)
-                    {
-                        _cboUtilityNetworks.SelectionChanged += UtilityNetworkSelectionChanged;
+                        _startingLocationsListItemsSource.Remove(l);
                     }
                 }
-            }
-        }
-
-        private void TraceConfigurationSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0)
-            {
-                _pbMapLoad.Visibility = Visibility.Collapsed;
-                _pbMapLoad.IsIndeterminate = false;
-                _traceConfigurationsViewContent.Visibility = Visibility.Visible;
-            }
-
-            ClearStatus();
-        }
-
-        private void UtilityNetworkSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count > 0 && e.AddedItems[0] is UtilityNetwork un)
-            {
-                if (e.AddedItems.Count > 1)
+                else if (_startingLocationsListItemsSource.Count < _startingLocations.Count)
                 {
-                    CboUtilityNetworks.Visibility = Visibility.Visible;
-                    TxtUtilityNetworks.Visibility = Visibility.Visible;
+                    var list = _startingLocations.Where(element => _startingLocationsListItemsSource.All(t => t.TerminalPickerModel.Element != element)).ToList();
+                    foreach (UtilityElement l in list)
+                    {
+                        TerminalPickerModel terminalPickerModel = new TerminalPickerModel(l, new DelegateCommand((o) =>
+                        {
+                            if (o is UtilityElement utilityElement)
+                            {
+                                DeleteStartingLocation(utilityElement);
+                            }
+                        }));
+                        Visibility visibility = (l.AssetType?.TerminalConfiguration?.Terminals.Count > 1) ? Visibility.Visible : Visibility.Collapsed;
+                        _startingLocationsListItemsSource.Add(new StartingLocationsListModel(terminalPickerModel, visibility));
+                    }
                 }
-
-                SetUtilityNetwork(un);
-            }
-        }
-
-        public void OnToggleGeoViewTapped(object sender, RoutedEventArgs e)
-        {
-            var toggleButton = (ToggleButton)sender;
-            if (toggleButton.IsChecked.HasValue && toggleButton.IsChecked.Value)
-            {
-                AddViewTapped();
-            }
-            else
-            {
-                RemoveViewTapped();
-            }
-        }
-
-        private void OnTraceClick(object sender, RoutedEventArgs e)
-        {
-            if (CboNamedTraceConfigurations.SelectedValue is UtilityNamedTraceConfiguration namedTraceConfiguration)
-            {
-                SelectAndNavigateToTraceConfiguration(namedTraceConfiguration);
-            }
-        }
-
-        private void OnResetClick(object sender, RoutedEventArgs e)
-        {
-            ResetMap();
-        }
-
-        private void ShowCallout(UtilityElement element, GeoViewInputEventArgs e)
-        {
-            GeoView.DismissCallout();
-            FrameworkElement calloutContent = SelectorTemplate.LoadContent() as FrameworkElement;
-            calloutContent.DataContext = element;
-            GeoView.ShowCalloutAt(e.Location, calloutContent);
-        }
-
-        private void ShowStatus(string status, bool isLoading = false)
-        {
-            _txtStatus.Text = status;
-            if (isLoading)
-            {
-                _pbMapLoad.Visibility = Visibility.Visible;
-                _pbMapLoad.IsIndeterminate = true;
-            }
-            else
-            {
-                _pbMapLoad.Visibility = Visibility.Collapsed;
-                _pbMapLoad.IsIndeterminate = false;
-            }
-        }
-
-        private void ClearStatus()
-        {
-            if (CboNamedTraceConfigurations.SelectedValue is UtilityNamedTraceConfiguration namedTraceConfiguration)
-            {
-                _txtStatus.Text = "Starting locations required: " + ((int)namedTraceConfiguration.MinimumStartingLocations);
-            }
-            else
-            {
-                _txtStatus.Text = "No Trace Configurations found.";
             }
         }
 
@@ -235,71 +220,147 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             set { SetValue(GeoViewProperty, value); }
         }
 
-        private UtilityNetwork UtilityNetworkImpl
-        {
-            get { return (UtilityNetwork)GetValue(UtilityNetworkProperty); }
-            set { SetValue(UtilityNetworkProperty, value); }
-        }
-
-        private Exception TraceExceptionImpl
-        {
-            get { return (Exception)GetValue(TraceExceptionProperty); }
-            set { SetValue(TraceExceptionProperty, value); }
-        }
-
-        /*private IEnumerable<UtilityTraceResult> TraceResultsImpl
-        {
-            get { return (IEnumerable<UtilityTraceResult>)GetValue(TraceResultsProperty); }
-            set { SetValue(TraceResultsProperty, value); }
-        }*/
-
         /// <summary>
         /// Identifies the <see cref="GeoView" /> dependency property.
         /// </summary>
         public static readonly DependencyProperty GeoViewProperty =
             DependencyProperty.Register(nameof(GeoView), typeof(GeoView), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnGeoViewPropertyChanged));
 
-        /// <summary>
-        /// Identifies the <see cref="UtilityNetwork" /> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty UtilityNetworkProperty =
-            DependencyProperty.Register(nameof(UtilityNetwork), typeof(UtilityNetwork), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnUtilityNetworkPropertyChanged));
-
-        /// <summary>
-        /// Identifies the <see cref="TraceException" /> dependency property.
-        /// </summary>
-        public static readonly DependencyProperty TraceExceptionProperty =
-            DependencyProperty.Register(nameof(TraceException), typeof(object), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnTraceExceptionPropertyChanged));
-
-        /// <summary>
-        /// Identifies the <see cref="TraceResults" /> dependency property.
-        /// </summary>
-        /*public static readonly DependencyProperty TraceResultsProperty =
-            DependencyProperty.Register(nameof(TraceResults), typeof(object), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnTraceResultsPropertyChanged));*/
-
         private static void OnGeoViewPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((TraceConfigurationsView)d)._utilityNetworksDataSource.SetGeoView(e.NewValue as GeoView);
-            ((TraceConfigurationsView)d)._dataSource.SetGeoView(e.NewValue as GeoView);
+            ((TraceConfigurationsView)d).UpdateGeoView(e.OldValue as GeoView, e.NewValue as GeoView);
         }
 
-        private static void OnUtilityNetworkPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private bool AutoZoomToTraceResultsImpl
         {
-            ((TraceConfigurationsView)d)._dataSource.SetUtilityNetwork(e.NewValue as UtilityNetwork);
+            get { return (bool)GetValue(AutoZoomProperty); }
+            set { SetValue(AutoZoomProperty, value); }
         }
-
-        private static void OnTraceExceptionPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((TraceConfigurationsView)d)._dataSource.SetTraceException(e.NewValue as Exception);
-        }
-
-        /*private static void OnTraceResultsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((TraceConfigurationsView)d)._dataSource.SetTraceResults(e.NewValue as IEnumerable<UtilityTraceResult>);
-        }*/
 
         /// <summary>
-        /// Gets or sets the item template used to render TraceConfiguration entries in the list.
+        /// Identifies the <see cref="AutoZoomToTraceResults" /> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty AutoZoomProperty =
+            DependencyProperty.Register(nameof(AutoZoomToTraceResults), typeof(bool), typeof(TraceConfigurationsView), new PropertyMetadata(true));
+
+        private Symbol StartingLocationSymbolImpl
+        {
+            get { return (Symbol)GetValue(StartingLocationSymbolProperty); }
+            set { SetValue(StartingLocationSymbolProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="StartingLocationSymbol" /> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty StartingLocationSymbolProperty =
+            DependencyProperty.Register(nameof(StartingLocationSymbol), typeof(Symbol), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnStartingLocationSymbolPropertyChanged));
+
+        private static void OnStartingLocationSymbolPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((TraceConfigurationsView)d).UpdateTraceLocationSymbol(e.NewValue as Symbol);
+        }
+
+        private Symbol ResultPointSymbolImpl
+        {
+            get { return (Symbol)GetValue(ResultPointSymbolProperty); }
+            set { SetValue(ResultPointSymbolProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="ResultPointSymbol" /> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ResultPointSymbolProperty =
+            DependencyProperty.Register(nameof(ResultPointSymbol), typeof(Symbol), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnResultPointSymbolPropertyChanged));
+
+        private static void OnResultPointSymbolPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((TraceConfigurationsView)d).UpdateResultSymbol(e.NewValue as Symbol, GeometryType.Multipoint);
+        }
+
+        private Symbol ResultLineSymbolImpl
+        {
+            get { return (Symbol)GetValue(ResultLineSymbolProperty); }
+            set { SetValue(ResultLineSymbolProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="ResultLineSymbol" /> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ResultLineSymbolProperty =
+            DependencyProperty.Register(nameof(ResultLineSymbol), typeof(Symbol), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnResultLineSymbolPropertyChanged));
+
+        private static void OnResultLineSymbolPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((TraceConfigurationsView)d).UpdateResultSymbol(e.NewValue as Symbol, GeometryType.Polyline);
+        }
+
+        private Symbol ResultFillSymbolImpl
+        {
+            get { return (Symbol)GetValue(ResultFillSymbolProperty); }
+            set { SetValue(ResultFillSymbolProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="ResultFillSymbol" /> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ResultFillSymbolProperty =
+            DependencyProperty.Register(nameof(ResultFillSymbol), typeof(Symbol), typeof(TraceConfigurationsView), new PropertyMetadata(null, OnResultFillSymbolPropertyChanged));
+
+        private static void OnResultFillSymbolPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((TraceConfigurationsView)d).UpdateResultSymbol(e.NewValue as Symbol, GeometryType.Polygon);
+        }
+
+        /*private Task<UtilityElement> GetElementWithTerminalAsync(MapPoint location, UtilityElement element)
+        {
+            var tcs = new TaskCompletionSource<UtilityElement>();
+            if (GeoView is GeoView geoView && TerminalPickerTemplate is FrameworkElement terminalPicker)
+            {
+                terminalPicker.DataContext = new TerminalPickerModel(element, new DelegateCommand((o) =>
+                {
+                    if (o is UtilityElement traceLocation)
+                    {
+                        tcs.TrySetResult(traceLocation);
+                    }
+
+                    geoView.DismissCallout();
+                }));
+                geoView.ShowCalloutAt(location, terminalPicker);
+            }
+
+            return tcs.Task;
+        }*/
+
+        private class StartingLocationsListModel
+        {
+            internal StartingLocationsListModel(TerminalPickerModel terminalPickerModel, Visibility visibility)
+            {
+                TerminalPickerModel = terminalPickerModel;
+                TerminalPickerVisibility = visibility;
+            }
+
+            public TerminalPickerModel TerminalPickerModel { get; }
+
+            public Visibility TerminalPickerVisibility { get; }
+        }
+
+        /// <summary>
+        /// Gets or sets the item template used to render trace configuration entries in the list.
+        /// </summary>
+        public FrameworkElement TerminalPickerTemplate
+        {
+            get { return (FrameworkElement)GetValue(TerminalPickerTemplateProperty); }
+            set { SetValue(TerminalPickerTemplateProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="TerminalPickerTemplate"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty TerminalPickerTemplateProperty =
+            DependencyProperty.Register(nameof(TerminalPickerTemplate), typeof(FrameworkElement), typeof(TraceConfigurationsView), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Gets or sets the item template used to render trace configuration entries in the list.
         /// </summary>
         public DataTemplate ItemTemplate
         {
@@ -329,29 +390,64 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             DependencyProperty.Register(nameof(ItemContainerStyle), typeof(Style), typeof(TraceConfigurationsView), null);
 
         /// <summary>
-        /// Gets or sets the template used for callouts.
+        /// Gets or sets the item template used to render trace configuration entries in the list.
         /// </summary>
-        public DataTemplate SelectorTemplate
+        public DataTemplate ResultItemTemplate
         {
-            get { return (DataTemplate)GetValue(SelectorTemplateProperty); }
-            set { SetValue(SelectorTemplateProperty, value); }
+            get { return (DataTemplate)GetValue(ResultItemTemplateProperty); }
+            set { SetValue(ResultItemTemplateProperty, value); }
         }
 
         /// <summary>
-        /// Identifies the <see cref="SelectorTemplate"/> dependency property.
+        /// Identifies the <see cref="ResultItemTemplate"/> dependency property.
         /// </summary>
-        public static readonly DependencyProperty SelectorTemplateProperty =
-            DependencyProperty.Register(nameof(SelectorTemplate), typeof(DataTemplate), typeof(TraceConfigurationsView), new PropertyMetadata(null));
+        public static readonly DependencyProperty ResultItemTemplateProperty =
+            DependencyProperty.Register(nameof(ResultItemTemplate), typeof(DataTemplate), typeof(TraceConfigurationsView), new PropertyMetadata(null));
 
-
-        /*public async void DisplayException(Exception ex)
+        /// <summary>
+        /// Gets or sets the style used by the list view items in the underlying list view control.
+        /// </summary>
+        public Style ResultItemContainerStyle
         {
-#if UAP10_0_17134
-            await new MessageDialog(ex.Message).ShowAsync();
-#else
-            MessageBox.Show(ex.Message);
-#endif
-        }*/
+            get { return (Style)GetValue(ResultItemContainerStyleProperty); }
+            set { SetValue(ResultItemContainerStyleProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="ResultItemContainerStyle"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty ResultItemContainerStyleProperty =
+            DependencyProperty.Register(nameof(ResultItemContainerStyle), typeof(Style), typeof(TraceConfigurationsView), null);
+
+        /// <summary>
+        /// Gets or sets the item template used to render starting locations in the list.
+        /// </summary>
+        public DataTemplate StartingLocationsItemTemplate
+        {
+            get { return (DataTemplate)GetValue(StartingLocationsItemTemplateProperty); }
+            set { SetValue(StartingLocationsItemTemplateProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="StartingLocationsItemTemplate"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty StartingLocationsItemTemplateProperty =
+            DependencyProperty.Register(nameof(StartingLocationsItemTemplate), typeof(DataTemplate), typeof(TraceConfigurationsView), new PropertyMetadata(null));
+
+        /// <summary>
+        /// Gets or sets the style used by the list view items in the underlying list view control.
+        /// </summary>
+        public Style StartingLocationsItemContainerStyle
+        {
+            get { return (Style)GetValue(StartingLocationsItemContainerStyleProperty); }
+            set { SetValue(StartingLocationsItemContainerStyleProperty, value); }
+        }
+
+        /// <summary>
+        /// Identifies the <see cref="StartingLocationstItemContainerStyle"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty StartingLocationsItemContainerStyleProperty =
+            DependencyProperty.Register(nameof(StartingLocationsItemContainerStyle), typeof(Style), typeof(TraceConfigurationsView), null);
     }
 }
 #endif

@@ -17,8 +17,10 @@
 #if XAMARIN
 
 using System;
-using System.Collections.Generic;
-using Esri.ArcGISRuntime.Mapping;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using Esri.ArcGISRuntime.Geometry;
+using Esri.ArcGISRuntime.Symbology;
 using Esri.ArcGISRuntime.UI.Controls;
 using Esri.ArcGISRuntime.UtilityNetworks;
 
@@ -26,10 +28,23 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 {
     public partial class TraceConfigurationsView
     {
+        private void InitializeComponent()
+        {
+            _synchronizationContext = System.Threading.SynchronizationContext.Current ?? new System.Threading.SynchronizationContext();
+            _propertyChangedAction = new Action<string>((propertyName) =>
+            {
+                if (propertyName == nameof(IsBusy))
+                {
+                    // TODO
+                }
+                else if (propertyName == nameof(Status))
+                {
+                    // TODO
+                }
+            });
+        }
+
         private GeoView _geoView;
-        private Exception _traceException;
-        private UtilityNetwork _utilityNetwork;
-        //private IEnumerable<UtilityTraceResult> _utilityTraceResults;
 
         private GeoView GeoViewImpl
         {
@@ -38,53 +53,88 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             {
                 if (_geoView != value)
                 {
+                    var oldGeoView = _geoView;
                     _geoView = value;
-                    _dataSource.SetGeoView(_geoView);
+                    UpdateGeoView(oldGeoView, _geoView);
                 }
             }
         }
 
-        private UtilityNetwork UtilityNetworkImpl
+        private bool _autoZoomToTraceResults = true;
+
+        private bool AutoZoomToTraceResultsImpl
         {
-            get => _utilityNetwork;
+            get => _autoZoomToTraceResults;
+            set => _autoZoomToTraceResults = value;
+        }
+
+        private Symbol _startingLocationSymbol;
+
+        private Symbol StartingLocationSymbolImpl
+        {
+            get => _startingLocationSymbol;
             set
             {
-                _dataSource.SetUtilityNetwork(_utilityNetwork);
+                if (_startingLocationSymbol != value)
+                {
+                    _startingLocationSymbol = value;
+                    UpdateTraceLocationSymbol(_startingLocationSymbol);
+                }
             }
         }
 
-        private Exception TraceExceptionImpl
+        private Symbol _resultPointSymbol;
+
+        private Symbol ResultPointSymbolImpl
         {
-            get => _traceException;
+            get => _resultPointSymbol;
             set
             {
-                _dataSource.SetTraceException(_traceException);
+                if (_resultPointSymbol != value)
+                {
+                    _resultPointSymbol = value;
+                    UpdateResultSymbol(_resultPointSymbol, GeometryType.Multipoint);
+                }
             }
         }
 
-        private void ShowCallout(UtilityElement element, GeoViewInputEventArgs e)
-        {
-            
-        }
+        private Symbol _resultLineSymbol;
 
-        private void ShowStatus(string status, bool isLoading = false)
+        private Symbol ResultLineSymbolImpl
         {
-            
-        }
-
-        private void ClearStatus()
-        {
-            
-        }
-
-        /*private IEnumerable<UtilityTraceResult> TraceResultsImpl
-        {
-            get => _utilityTraceResults;
+            get => _resultLineSymbol;
             set
             {
-                _dataSource.SetTraceResults(_utilityTraceResults);
+                if (_resultLineSymbol != value)
+                {
+                    _resultLineSymbol = value;
+                    UpdateResultSymbol(_resultLineSymbol, GeometryType.Polyline);
+                }
             }
-        }*/
+        }
+
+        private Symbol _resultFillSymbol;
+
+        private Symbol ResultFillSymbolImpl
+        {
+            get => _resultFillSymbol;
+            set
+            {
+                if (_resultFillSymbol != value)
+                {
+                    _resultFillSymbol = value;
+                    UpdateResultSymbol(_resultFillSymbol, GeometryType.Polygon);
+                }
+            }
+        }
+
+        private Task<UtilityElement> GetElementWithTerminalAsync(MapPoint location, UtilityElement element)
+        {
+            var tcs = new TaskCompletionSource<UtilityElement>();
+
+            // TODO
+            return tcs.Task;
+        }
     }
 }
 #endif
