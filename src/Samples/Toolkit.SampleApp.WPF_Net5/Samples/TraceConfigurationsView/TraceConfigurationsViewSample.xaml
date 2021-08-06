@@ -203,14 +203,6 @@
                 <Button Content="Add/Remove UtilityNetwork"
                         Click="OnAddRemoveUtilityNetwork" />
                 -->
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="{Binding ElementName=TraceConfigurationsView, Path=UtilityNetworks.Count}"/>
-                    <TextBlock Text=" Utility Network(s)"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="2">
-                    <TextBlock Text="{Binding ElementName=TraceConfigurationsView, Path=TraceConfigurations.Count}"/>
-                    <TextBlock Text=" Trace Configuration(s)"/>
-                </StackPanel>
                 <ToggleButton Content="AutoZoomToTraceResults"
                               IsChecked="{Binding ElementName=TraceConfigurationsView, Path=AutoZoomToTraceResults}" />
                 <Button Content="Update Symbols"

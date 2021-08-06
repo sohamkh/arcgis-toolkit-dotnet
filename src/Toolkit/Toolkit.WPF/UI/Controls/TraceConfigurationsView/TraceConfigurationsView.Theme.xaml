@@ -102,8 +102,8 @@
 							  <RowDefinition Height="Auto"/>
 						  </Grid.RowDefinitions>
 						  <Grid.ColumnDefinitions>
-							  <ColumnDefinition/>
-							  <ColumnDefinition/>
+							  <ColumnDefinition Width="*"/>
+							  <ColumnDefinition Width="*"/>
 							  <ColumnDefinition Width="Auto"/>
 						  </Grid.ColumnDefinitions>
 						  <TextBlock Text="{Binding TerminalPickerModel.Element.AssetGroup.Name}"
@@ -116,14 +116,14 @@
 									 VerticalAlignment="Center"
 									 Grid.Column="0"  Grid.Row="1"
 									 TextWrapping="WrapWithOverflow"/>
-						  <Grid Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Center">
+						  <Grid Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Center" Visibility="{Binding TerminalPickerVisibility}" >
 							  <Grid.ColumnDefinitions>
 								  <ColumnDefinition Width="Auto"/>
 								  <ColumnDefinition Width="Auto"/>
 							  </Grid.ColumnDefinitions>
-							  <TextBlock Grid.Column="0" Text="Terminal: " Visibility="{Binding TerminalPickerVisibility}" />
+							  <TextBlock Grid.Column="0" Text="Terminal: "/>
 							  <ComboBox ItemsSource="{Binding TerminalPickerModel.Element.AssetType.TerminalConfiguration.Terminals}"
-								  SelectedItem="{Binding TerminalPickerModel.Element.Terminal, Mode=TwoWay}" Visibility="{Binding TerminalPickerVisibility}"
+								  SelectedItem="{Binding TerminalPickerModel.Element.Terminal, Mode=TwoWay}"
 								  Margin="2"
 								  Grid.Column="1">
 								  <ComboBox.ItemTemplate>
@@ -133,11 +133,25 @@
 								  </ComboBox.ItemTemplate>
 							  </ComboBox>
 						  </Grid>
-						  <Button Content=" x "
-							Command="{Binding TerminalPickerModel.SelectCommand}"
+						  <Grid Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Center" Visibility="{Binding FractionAlongPickerVisibility}">
+							  <Grid.ColumnDefinitions>
+								  <ColumnDefinition Width="2*"/>
+								  <ColumnDefinition Width="*"/>
+							  </Grid.ColumnDefinitions>
+							  <Slider x:Name="FractionAlongSlider" Maximum="1.0" Minimum="0.0" Margin="2"
+								  Grid.Column="0" TickPlacement="BottomRight" LargeChange="1" SmallChange="0.1" TickFrequency="0.1"
+									  Value="{Binding TerminalPickerModel.Element.FractionAlongEdge, Mode=TwoWay}"/>
+							  <TextBox Margin="2" Grid.Column="1" Text="{Binding ElementName=FractionAlongSlider, Path=Value, Mode=TwoWay, StringFormat=0.000}"/>
+						  </Grid>
+						  <Button Command="{Binding TerminalPickerModel.SelectCommand}"
 							CommandParameter="{Binding TerminalPickerModel.Element}"
 							Margin="1" VerticalAlignment="Center"
-							Grid.RowSpan="2" Grid.Column="2"/>
+							Grid.RowSpan="2" Grid.Column="2">
+							  <Image Source="/Esri.ArcGISRuntime.Toolkit;component/Assets/Delete.png"
+                                           Height="15"
+                                           Width="15"
+                                           Stretch="UniformToFill" />
+						  </Button>
 					  </Grid>
 				  </Border>
 			  </DataTemplate>

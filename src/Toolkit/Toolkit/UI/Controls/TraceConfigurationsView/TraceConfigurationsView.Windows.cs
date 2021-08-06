@@ -207,8 +207,9 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
                                 DeleteStartingLocation(utilityElement);
                             }
                         }));
-                        Visibility visibility = (l.AssetType?.TerminalConfiguration?.Terminals.Count > 1) ? Visibility.Visible : Visibility.Collapsed;
-                        _startingLocationsListItemsSource.Add(new StartingLocationsListModel(terminalPickerModel, visibility));
+                        Visibility terminalPickerVisibility = (l.AssetType?.TerminalConfiguration?.Terminals.Count > 1) ? Visibility.Visible : Visibility.Collapsed;
+                        Visibility fractionAlongPickerVisibility = (l.NetworkSource.SourceType == UtilityNetworkSourceType.Edge) ? Visibility.Visible : Visibility.Collapsed;
+                        _startingLocationsListItemsSource.Add(new StartingLocationsListModel(terminalPickerModel, terminalPickerVisibility, fractionAlongPickerVisibility));
                     }
                 }
             }
@@ -333,15 +334,18 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
 
         private class StartingLocationsListModel
         {
-            internal StartingLocationsListModel(TerminalPickerModel terminalPickerModel, Visibility visibility)
+            internal StartingLocationsListModel(TerminalPickerModel terminalPickerModel, Visibility terminalPickerVisibility, Visibility fractionAlongPickerVisibility)
             {
                 TerminalPickerModel = terminalPickerModel;
-                TerminalPickerVisibility = visibility;
+                TerminalPickerVisibility = terminalPickerVisibility;
+                FractionAlongPickerVisibility = fractionAlongPickerVisibility;
             }
 
             public TerminalPickerModel TerminalPickerModel { get; }
 
             public Visibility TerminalPickerVisibility { get; }
+
+            public Visibility FractionAlongPickerVisibility { get; }
         }
 
         /// <summary>

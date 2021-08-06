@@ -175,7 +175,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Samples.TraceConfigurationsView
 
         private void OnSetOverrideList(object sender, RoutedEventArgs e)
         {
-            TraceConfigurationsView.StartingLocations = overrideList;
+            TraceConfigurationsView.StartingLocationsOverride = overrideList;
         }
 
         private void OnAddStartingLocationToggle(object sender, RoutedEventArgs e)

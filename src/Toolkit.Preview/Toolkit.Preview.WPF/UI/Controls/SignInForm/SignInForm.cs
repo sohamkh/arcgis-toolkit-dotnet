@@ -40,6 +40,7 @@ namespace Esri.ArcGISRuntime.Toolkit.Preview.UI.Controls
         /// </summary>
         public SignInForm()
         {
+            
             DefaultStyleKey = typeof(SignInForm);
         }
 

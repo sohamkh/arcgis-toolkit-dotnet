@@ -89,7 +89,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
             set => AutoZoomToTraceResultsImpl = value;
         }
 
-        /// <summary>
+        /*/// <summary>
         /// Gets a list of utility networks in the map.
         /// </summary>
         public ObservableCollection<UtilityNetwork> UtilityNetworks
@@ -103,7 +103,7 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         public ObservableCollection<UtilityNamedTraceConfiguration> TraceConfigurations
         {
             get => _traceConfigurations;
-        }
+        }*/
 
         /// <summary>
         /// Gets or sets the <see cref="Symbol"/> used by starting locations.
@@ -142,11 +142,10 @@ namespace Esri.ArcGISRuntime.Toolkit.UI.Controls
         }
 
         /// <summary>
-        /// Gets of sets a list of starting locations that will be used to start a trace.
+        /// Sets a list of starting locations that will be used to start a trace.
         /// </summary>
-        public ObservableCollection<UtilityElement> StartingLocations
+        public ObservableCollection<UtilityElement> StartingLocationsOverride
         {
-            get => _startingLocations;
             set => OverrideStartingLocations(value);
             // set => StartingLocationsImpl = value;
         }
